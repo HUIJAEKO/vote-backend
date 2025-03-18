@@ -17,7 +17,6 @@ import project.votebackend.service.AuthService;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserRepository userRepository;
 
     // 회원가입
     @PostMapping("/signup")
