@@ -21,11 +21,11 @@ class AuthControllerTest {
     @Test
     void 회원가입_성공() {
         UserSignupDto requestDto = UserSignupDto.builder()
-                .username("test12")
+                .username("test123")
                 .password("password123")
                 .name("테스트 사용자")
                 .gender(Gender.MALE)
-                .phone("010123458")
+                .phone("0101234")
                 .birthdate(LocalDate.of(1990,1,2))
                 .address("서울특별시 강남구")
                 .introduction("안녕하세요. 테스트 사용자입니다.")
