@@ -34,7 +34,7 @@ public class AuthService {
                 .name(dto.getName())
                 .gender(dto.getGender())
                 .phone(dto.getPhone())
-                .birthdate(dto.getBirthDate())
+                .birthdate(dto.getBirthdate())
                 .address(dto.getAddress())
                 .introduction(dto.getIntroduction())
                 .profileImage(dto.getProfileImage())
