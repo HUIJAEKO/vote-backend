@@ -1,5 +1,6 @@
 package project.votebackend.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import project.votebackend.type.Gender;
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class UserSignupDto {
     private String username;
     private String password;
