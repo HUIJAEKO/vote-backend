@@ -17,11 +17,15 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // 회원가입
+    // 회원가입 (아이디 및 전화번호는 중복 존재 불가)
     @Transactional
     public User registerUser(UserSignupDto dto) {
         if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
             throw new AuthException(ErrorCode.ALREADY_EXIST_NAME);
+        }
+
+        if (userRepository.findByPhone(dto.getPhone()).isPresent()) {
+            throw new AuthException(ErrorCode.ALREADY_EXIST_PHONE);
         }
 
         User user = User.builder()
