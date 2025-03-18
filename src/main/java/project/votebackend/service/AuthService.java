@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.votebackend.domain.User;
 import project.votebackend.dto.UserSignupDto;
+import project.votebackend.exception.AuthException;
 import project.votebackend.repository.UserRepository;
+import project.votebackend.type.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class AuthService {
     @Transactional
     public User registerUser(UserSignupDto dto) {
         if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
-            throw new RuntimeException("이미 존재하는 아이디입니다");
+            throw new AuthException(ErrorCode.ALREADY_EXIST_NAME);
         }
 
         User user = User.builder()
