@@ -4,11 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.votebackend.domain.Category;
 import project.votebackend.domain.User;
+import project.votebackend.domain.UserInterest;
 import project.votebackend.dto.LoginRequest;
 import project.votebackend.dto.LoginResponse;
 import project.votebackend.dto.UserSignupDto;
 import project.votebackend.exception.AuthException;
+import project.votebackend.exception.CategoryException;
+import project.votebackend.repository.CategoryRepository;
+import project.votebackend.repository.UserInterestRepository;
 import project.votebackend.repository.UserRepository;
 import project.votebackend.type.ErrorCode;
 import project.votebackend.util.JwtUtil;
@@ -19,6 +24,8 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CategoryRepository categoryRepository;
+    private final UserInterestRepository userInterestRepository;
     private final JwtUtil jwtUtil;
 
     // 회원가입 (아이디 및 전화번호는 중복 존재 불가)
@@ -46,9 +53,25 @@ public class AuthService {
                 .voteScore(0L)
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // 관심 카테고리 저장
+        if (dto.getInterestCategory() != null) {
+            for (Long categoryId : dto.getInterestCategory()) {
+                Category category = categoryRepository.findById(categoryId)
+                        .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
+                UserInterest interest = UserInterest.builder()
+                        .user(savedUser)
+                        .category(category)
+                        .build();
+                userInterestRepository.save(interest);
+            }
+        }
+
+        return savedUser;
     }
 
+    //로그인
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
