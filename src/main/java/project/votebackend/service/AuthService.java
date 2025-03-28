@@ -5,10 +5,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.votebackend.domain.User;
+import project.votebackend.dto.LoginRequest;
+import project.votebackend.dto.LoginResponse;
 import project.votebackend.dto.UserSignupDto;
 import project.votebackend.exception.AuthException;
 import project.votebackend.repository.UserRepository;
 import project.votebackend.type.ErrorCode;
+import project.votebackend.util.JwtUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +19,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     // 회원가입 (아이디 및 전화번호는 중복 존재 불가)
     @Transactional
@@ -43,5 +47,17 @@ public class AuthService {
                 .build();
 
         return userRepository.save(user);
+    }
+
+    public LoginResponse login(LoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new AuthException(ErrorCode.PASSWORD_NOT_MATCHED);
+        }
+
+        String token = jwtUtil.generateToken(user.getUsername());
+        return new LoginResponse("success", token);
     }
 }
