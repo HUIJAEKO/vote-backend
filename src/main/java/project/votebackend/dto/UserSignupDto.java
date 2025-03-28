@@ -6,6 +6,7 @@ import lombok.Data;
 import project.votebackend.type.Gender;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -20,4 +21,5 @@ public class UserSignupDto {
     private String address;
     private String introduction;
     private String profileImage;
+    private List<Long> interestCategory;
 }
