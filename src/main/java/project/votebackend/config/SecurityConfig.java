@@ -18,8 +18,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 X (JWT 사용 예정)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/signup", "/auth/login").permitAll() // 회원가입 & 로그인은 인증 없이 접근 가능
-                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                        .anyRequest().permitAll() // 모든 요청 허용
+//                        .requestMatchers("/auth/signup", "/auth/login").permitAll() // 회원가입 & 로그인은 인증 없이 접근 가능
+//                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 );
 
         return http.build();
