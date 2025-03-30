@@ -1,0 +1,17 @@
+package project.votebackend.dto;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+public class CreateVoteRequest {
+    private Long userId;
+    private Long categoryId;
+    private String title;
+    private String content;
+    private LocalDateTime finishTime;
+    private List<String> options;
+    private List<String> imageUrls;
+}
