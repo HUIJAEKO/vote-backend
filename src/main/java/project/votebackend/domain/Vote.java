@@ -36,4 +36,13 @@ public class Vote extends BaseEntity{
 
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL)
     private List<VoteImage> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL)
+    private List<VoteSelection> selections = new ArrayList<>();
+
+    @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL)
+    private List<Reaction> reactions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
 }
