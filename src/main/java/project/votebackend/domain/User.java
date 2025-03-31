@@ -5,6 +5,8 @@ import lombok.*;
 import project.votebackend.type.Gender;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -49,4 +51,7 @@ public class User extends BaseEntity{
 
     @Column(nullable = false)
     private LocalDate birthdate;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserInterest> userInterests = new ArrayList<>();
 }

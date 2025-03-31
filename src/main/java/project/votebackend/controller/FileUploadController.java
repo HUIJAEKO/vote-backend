@@ -14,6 +14,7 @@ public class FileUploadController {
 
     private final FileStorageService fileStorageService;
 
+    //이미지 업로드
     @PostMapping("/image/upload")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         String imageUrl = fileStorageService.storeFile(file);
