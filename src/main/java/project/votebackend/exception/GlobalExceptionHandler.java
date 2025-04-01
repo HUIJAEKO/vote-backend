@@ -21,6 +21,24 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(e.getErrorCode(), e.getErrorMessage()));
     }
 
+    @ExceptionHandler(CategoryException.class)
+    public ResponseEntity<ErrorResponse> handleCategoryException(AuthException e){
+        log.error("{}", e.getErrorCode());
+
+        return ResponseEntity
+                .status(e.getErrorCode().getHttpStatus())
+                .body(new ErrorResponse(e.getErrorCode(), e.getErrorMessage()));
+    }
+
+    @ExceptionHandler(VoteException.class)
+    public ResponseEntity<ErrorResponse> handleVoteException(AuthException e){
+        log.error("{}", e.getErrorCode());
+
+        return ResponseEntity
+                .status(e.getErrorCode().getHttpStatus())
+                .body(new ErrorResponse(e.getErrorCode(), e.getErrorMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e){
         log.error("{}", e.getMessage());
