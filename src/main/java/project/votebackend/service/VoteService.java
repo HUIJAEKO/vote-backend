@@ -23,7 +23,7 @@ public class VoteService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final VoteOptionRepository voteOptionRepository;
-    private final VoteSelectRepository voteSelectionRepository;
+    private final VoteSelectRepository voteSelectRepository;
 
     //투표 생성
     @Transactional
@@ -73,12 +73,15 @@ public class VoteService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
 
-        List<Long> categoryIds = user.getUserInterests()
-                .stream()
-                .map(userInterest -> userInterest.getCategory().getCategoryId())
+        // 유저가 선택한 카테고리 ID 목록
+        List<Long> categoryIds = user.getUserInterests().stream()
+                .map(interest -> interest.getCategory().getCategoryId())
                 .toList();
 
-        Page<Vote> votes = voteRepository.findMainPageVotes(user.getUserId(), categoryIds, pageable);
-        return votes.map(vote -> LoadMainPageVoteDto.fromEntity(vote, userId));
+        // 투표 조회
+        Page<Vote> votes = voteRepository.findMainPageVotes(userId, categoryIds, pageable);
+
+        // DTO로 변환 (득표수, 선택 옵션)
+        return votes.map(vote -> LoadMainPageVoteDto.fromEntity(vote, userId, voteSelectRepository));
     }
 }

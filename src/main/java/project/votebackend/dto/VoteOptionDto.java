@@ -13,11 +13,13 @@ import project.votebackend.domain.VoteOption;
 public class VoteOptionDto {
     private Long id;
     private String content;
+    private int voteCount;
 
-    public static VoteOptionDto fromEntity(VoteOption option) {
+    public static VoteOptionDto fromEntity(VoteOption option, int voteCount) {
         return VoteOptionDto.builder()
                 .id(option.getOptionId())
                 .content(option.getOption())
+                .voteCount(voteCount)
                 .build();
     }
 }
