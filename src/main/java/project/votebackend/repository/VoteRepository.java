@@ -12,6 +12,10 @@ import java.util.List;
 
 @Repository
 public interface VoteRepository extends JpaRepository<Vote, Long> {
-    @Query("SELECT v FROM Vote v WHERE v.user.userId = :userId OR v.category.categoryId IN :categoryIds")
+    @Query(
+            value = "SELECT * FROM vote v WHERE v.user_id = :userId OR v.category_id IN (:categoryIds)",
+            countQuery = "SELECT count(*) FROM vote v WHERE v.user_id = :userId OR v.category_id IN (:categoryIds)",
+            nativeQuery = true
+    )
     Page<Vote> findMainPageVotes(@Param("userId") Long userId, @Param("categoryIds") List<Long> categoryIds, Pageable pageable);
 }
