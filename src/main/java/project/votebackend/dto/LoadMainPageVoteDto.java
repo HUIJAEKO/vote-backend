@@ -5,10 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import project.votebackend.domain.Vote;
+import project.votebackend.repository.VoteSelectRepository;
 import project.votebackend.type.ReactionType;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -31,9 +33,11 @@ public class LoadMainPageVoteDto {
     private int likeCount;
     private boolean isBookmarked;
     private boolean isLiked;
+    private int totalVotes;
+    private Long selectedOptionId;
 
     //Entity -> Dto 변환 후 반환
-    public static LoadMainPageVoteDto fromEntity(Vote vote, Long currentUserId) {
+    public static LoadMainPageVoteDto fromEntity(Vote vote, Long currentUserId, VoteSelectRepository voteSelectRepository) {
         int commentCount = vote.getComments() != null ? vote.getComments().size() : 0;
         int likeCount = (int) vote.getReactions().stream()
                 .filter(r -> r.getReaction() == ReactionType.LIKE)
@@ -51,9 +55,22 @@ public class LoadMainPageVoteDto {
                 .map(VoteImageDto::fromEntity)
                 .collect(Collectors.toList());
 
+        // 각 옵션의 투표 수 계산
         List<VoteOptionDto> voteOptions = vote.getOptions().stream()
-                .map(VoteOptionDto::fromEntity)
+                .map(option -> {
+                    int voteCount = voteSelectRepository.countByOptionId(option.getOptionId());
+                    return VoteOptionDto.fromEntity(option, voteCount);
+                })
                 .collect(Collectors.toList());
+
+        // 전체 투표 수 계산
+        int totalVotes = voteOptions.stream()
+                .mapToInt(VoteOptionDto::getVoteCount)
+                .sum();
+
+        // 사용자가 선택한 옵션 조회
+        Optional<Long> selectedOptionId = voteSelectRepository
+                .findOptionIdByVoteIdAndUserId(vote.getVoteId(), currentUserId);
 
         return LoadMainPageVoteDto.builder()
                 .voteId(vote.getVoteId())
@@ -70,6 +87,8 @@ public class LoadMainPageVoteDto {
                 .likeCount(likeCount)
                 .isLiked(isLiked)
                 .isBookmarked(isBookmarked)
+                .totalVotes(totalVotes)
+                .selectedOptionId(selectedOptionId.orElse(null))
                 .build();
     }
 }
