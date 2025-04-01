@@ -15,7 +15,12 @@ public enum ErrorCode {
     PASSWORD_NOT_MATCHED(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
 
     //Category
-    CATEGORY_NOT_FOUND(HttpStatus.CONFLICT, "존재하지 않는 카테고리입니다.");
+    CATEGORY_NOT_FOUND(HttpStatus.CONFLICT, "존재하지 않는 카테고리입니다."),
+
+    //Vote
+    VOTE_NOT_FOUND(HttpStatus.CONFLICT, "존재하지 않는 투표입니다."),
+    VOTE_OPTION_NOT_FOUND(HttpStatus.CONFLICT, "존재하지 않는 투표옵션입니다."),
+    VOTE_ALREADY_FINISHED(HttpStatus.CONFLICT, "이미 종료된 투표입니다.");
 
 
     private final HttpStatus httpStatus;

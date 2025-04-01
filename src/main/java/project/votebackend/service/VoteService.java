@@ -10,9 +10,7 @@ import project.votebackend.dto.CreateVoteRequest;
 import project.votebackend.dto.LoadMainPageVoteDto;
 import project.votebackend.exception.AuthException;
 import project.votebackend.exception.CategoryException;
-import project.votebackend.repository.CategoryRepository;
-import project.votebackend.repository.UserRepository;
-import project.votebackend.repository.VoteRepository;
+import project.votebackend.repository.*;
 import project.votebackend.type.ErrorCode;
 
 import java.util.List;
@@ -24,6 +22,8 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final VoteOptionRepository voteOptionRepository;
+    private final VoteSelectRepository voteSelectionRepository;
 
     //투표 생성
     @Transactional
