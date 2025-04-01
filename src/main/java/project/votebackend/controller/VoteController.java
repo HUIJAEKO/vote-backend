@@ -9,9 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import project.votebackend.domain.Vote;
-import project.votebackend.dto.CreateVoteRequest;
-import project.votebackend.dto.CreateVoteResponse;
-import project.votebackend.dto.LoadMainPageVoteDto;
+import project.votebackend.dto.*;
 import project.votebackend.security.CustumUserDetails;
 import project.votebackend.service.VoteService;
 
