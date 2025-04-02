@@ -24,7 +24,7 @@ public class StorageController {
     @GetMapping("/voted")
     public ResponseEntity<Page<LoadMainPageVoteDto>> getVotedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
-            @PageableDefault(size = 10, sort = "created_at", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(storageService.getVotedPosts(userDetails.getId(), pageable));
     }
@@ -32,7 +32,7 @@ public class StorageController {
     @GetMapping("/liked")
     public ResponseEntity<Page<LoadMainPageVoteDto>> getLikedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
-            @PageableDefault(size = 10, sort = "created_at", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(storageService.getLikedPosts(userDetails.getId(), pageable));
     }
@@ -40,7 +40,7 @@ public class StorageController {
     @GetMapping("/bookmarked")
     public ResponseEntity<Page<LoadMainPageVoteDto>> getBookmarkedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
-            @PageableDefault(size = 10, sort = "created_at", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(storageService.getBookmarkedPosts(userDetails.getId(), pageable));
     }

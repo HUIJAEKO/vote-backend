@@ -5,7 +5,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "vote")
@@ -32,10 +34,10 @@ public class Vote extends BaseEntity{
     private LocalDateTime finishTime;
 
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL)
-    private List<VoteOption> options = new ArrayList<>();
+    private Set<VoteOption> options = new HashSet<>();
 
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL)
-    private List<VoteImage> images = new ArrayList<>();
+    private Set<VoteImage> images = new HashSet<>();
 
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL)
     private List<VoteSelection> selections = new ArrayList<>();

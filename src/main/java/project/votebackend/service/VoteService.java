@@ -14,6 +14,7 @@ import project.votebackend.repository.*;
 import project.votebackend.type.ErrorCode;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,7 +23,6 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final VoteOptionRepository voteOptionRepository;
     private final VoteSelectRepository voteSelectRepository;
 
     //투표 생성
@@ -45,23 +45,23 @@ public class VoteService {
 
 
         // 옵션 추가
-        List<VoteOption> options = request.getOptions().stream().map(opt -> {
+        Set<VoteOption> options = request.getOptions().stream().map(opt -> {
             VoteOption o = new VoteOption();
             o.setVote(vote);
             o.setOption(opt);
             return o;
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toSet());
 
         vote.setOptions(options);
 
         // 이미지 추가
         if (request.getImageUrls() != null) {
-            List<VoteImage> images = request.getImageUrls().stream().map(url -> {
+            Set<VoteImage> images = request.getImageUrls().stream().map(url -> {
                 VoteImage img = new VoteImage();
                 img.setVote(vote);
                 img.setImageUrl(url);
                 return img;
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toSet());
             vote.setImages(images);
         }
 
