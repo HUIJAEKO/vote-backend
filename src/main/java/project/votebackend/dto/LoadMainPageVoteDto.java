@@ -31,6 +31,7 @@ public class LoadMainPageVoteDto {
     private List<VoteOptionDto> voteOptions;
     private LocalDateTime finishTime;
     private int commentCount;
+    private String profileImage;
     private int likeCount;
 
     @JsonProperty("isBookmarked")
@@ -92,6 +93,7 @@ public class LoadMainPageVoteDto {
                 .likeCount(likeCount)
                 .isLiked(isLiked)
                 .isBookmarked(isBookmarked)
+                .profileImage(vote.getUser().getProfileImage())
                 .totalVotes(totalVotes)
                 .selectedOptionId(selectedOptionId.orElse(null))
                 .build();
