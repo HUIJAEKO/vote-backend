@@ -21,6 +21,7 @@ public class StorageController {
 
     private final StorageService storageService;
 
+    //투표한 게시물 불러오기
     @GetMapping("/voted")
     public ResponseEntity<Page<LoadMainPageVoteDto>> getVotedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
@@ -29,6 +30,8 @@ public class StorageController {
         return ResponseEntity.ok(storageService.getVotedPosts(userDetails.getId(), pageable));
     }
 
+
+    //좋아요한 게시물 불러오기
     @GetMapping("/liked")
     public ResponseEntity<Page<LoadMainPageVoteDto>> getLikedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
@@ -37,6 +40,8 @@ public class StorageController {
         return ResponseEntity.ok(storageService.getLikedPosts(userDetails.getId(), pageable));
     }
 
+
+    //북마크한 게시물 불러오기
     @GetMapping("/bookmarked")
     public ResponseEntity<Page<LoadMainPageVoteDto>> getBookmarkedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
