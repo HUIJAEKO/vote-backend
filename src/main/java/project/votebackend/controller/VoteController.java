@@ -38,7 +38,7 @@ public class VoteController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<LoadMainPageVoteDto> vote = voteService.getMainPageVotes(userDetails.getId(), pageable);
         return ResponseEntity.ok(vote);
     }

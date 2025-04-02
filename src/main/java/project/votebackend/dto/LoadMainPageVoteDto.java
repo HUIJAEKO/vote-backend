@@ -1,5 +1,6 @@
 package project.votebackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,8 +32,12 @@ public class LoadMainPageVoteDto {
     private LocalDateTime finishTime;
     private int commentCount;
     private int likeCount;
+
+    @JsonProperty("isBookmarked")
     private boolean isBookmarked;
+    @JsonProperty("isLiked")
     private boolean isLiked;
+
     private int totalVotes;
     private Long selectedOptionId;
 
