@@ -33,13 +33,13 @@ public class VoteController {
 
     //메인페이지 투표 불러오기 (자신이 작성한, 자신이 선택한 카테고리의 글)
     @GetMapping("/load-main-page-votes")
-    public ResponseEntity<Page<LoadMainPageVoteDto>> loadMainPageVotes(
+    public ResponseEntity<Page<LoadVoteDto>> loadMainPageVotes(
             @AuthenticationPrincipal CustumUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<LoadMainPageVoteDto> vote = voteService.getMainPageVotes(userDetails.getId(), pageable);
+        Page<LoadVoteDto> vote = voteService.getMainPageVotes(userDetails.getId(), pageable);
         return ResponseEntity.ok(vote);
     }
 }
