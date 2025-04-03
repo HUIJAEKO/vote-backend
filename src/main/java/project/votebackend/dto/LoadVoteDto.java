@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoadMainPageVoteDto {
+public class LoadVoteDto {
     private Long voteId;
     private String title;
     private String content;
@@ -43,7 +43,7 @@ public class LoadMainPageVoteDto {
     private Long selectedOptionId;
 
     //Entity -> Dto 변환 후 반환
-    public static LoadMainPageVoteDto fromEntity(Vote vote, Long currentUserId, VoteSelectRepository voteSelectRepository) {
+    public static LoadVoteDto fromEntity(Vote vote, Long currentUserId, VoteSelectRepository voteSelectRepository) {
         int commentCount = vote.getComments() != null ? vote.getComments().size() : 0;
         int likeCount = (int) vote.getReactions().stream()
                 .filter(r -> r.getReaction() == ReactionType.LIKE)
@@ -78,7 +78,7 @@ public class LoadMainPageVoteDto {
         Optional<Long> selectedOptionId = voteSelectRepository
                 .findOptionIdByVoteIdAndUserId(vote.getVoteId(), currentUserId);
 
-        return LoadMainPageVoteDto.builder()
+        return LoadVoteDto.builder()
                 .voteId(vote.getVoteId())
                 .title(vote.getTitle())
                 .content(vote.getContent())

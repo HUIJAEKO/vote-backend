@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import project.votebackend.dto.LoadMainPageVoteDto;
+import project.votebackend.dto.LoadVoteDto;
 import project.votebackend.security.CustumUserDetails;
 import project.votebackend.service.StorageService;
 
@@ -23,7 +23,7 @@ public class StorageController {
 
     //투표한 게시물 불러오기
     @GetMapping("/voted")
-    public ResponseEntity<Page<LoadMainPageVoteDto>> getVotedPosts(
+    public ResponseEntity<Page<LoadVoteDto>> getVotedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
@@ -33,7 +33,7 @@ public class StorageController {
 
     //좋아요한 게시물 불러오기
     @GetMapping("/liked")
-    public ResponseEntity<Page<LoadMainPageVoteDto>> getLikedPosts(
+    public ResponseEntity<Page<LoadVoteDto>> getLikedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
@@ -43,7 +43,7 @@ public class StorageController {
 
     //북마크한 게시물 불러오기
     @GetMapping("/bookmarked")
-    public ResponseEntity<Page<LoadMainPageVoteDto>> getBookmarkedPosts(
+    public ResponseEntity<Page<LoadVoteDto>> getBookmarkedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
