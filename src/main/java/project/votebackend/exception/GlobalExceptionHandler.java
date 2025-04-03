@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CategoryException.class)
-    public ResponseEntity<ErrorResponse> handleCategoryException(AuthException e){
+    public ResponseEntity<ErrorResponse> handleCategoryException(CategoryException e){
         log.error("{}", e.getErrorCode());
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(VoteException.class)
-    public ResponseEntity<ErrorResponse> handleVoteException(AuthException e){
+    public ResponseEntity<ErrorResponse> handleVoteException(VoteException e){
         log.error("{}", e.getErrorCode());
 
         return ResponseEntity

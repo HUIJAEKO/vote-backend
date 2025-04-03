@@ -15,7 +15,7 @@ public class FileStorageService {
 
     private final Path uploadDir = Paths.get("images");
 
-    //파일 업로드(현재 static/images 폴더)
+    //파일 업로드(현재 /images 폴더)
     public String storeFile(MultipartFile file) {
         try {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
