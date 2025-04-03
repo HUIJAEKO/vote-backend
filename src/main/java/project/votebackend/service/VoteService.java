@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.votebackend.domain.*;
 import project.votebackend.dto.CreateVoteRequest;
-import project.votebackend.dto.LoadMainPageVoteDto;
+import project.votebackend.dto.LoadVoteDto;
 import project.votebackend.exception.AuthException;
 import project.votebackend.exception.CategoryException;
 import project.votebackend.repository.*;
@@ -69,7 +69,7 @@ public class VoteService {
     }
 
     // 메인페이지 투표 불러오기 (자신이 작성한, 자신이 선택한 카테고리의 글)
-    public Page<LoadMainPageVoteDto> getMainPageVotes(Long userId, Pageable pageable) {
+    public Page<LoadVoteDto> getMainPageVotes(Long userId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
 
@@ -82,6 +82,6 @@ public class VoteService {
         Page<Vote> votes = voteRepository.findMainPageVotes(userId, categoryIds, pageable);
 
         // DTO로 변환 (득표수, 선택 옵션)
-        return votes.map(vote -> LoadMainPageVoteDto.fromEntity(vote, userId, voteSelectRepository));
+        return votes.map(vote -> LoadVoteDto.fromEntity(vote, userId, voteSelectRepository));
     }
 }
