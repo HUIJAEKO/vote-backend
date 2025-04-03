@@ -37,6 +37,8 @@ public class User extends BaseEntity{
     private String address;
 
     private String introduction;
+
+    @Column(length = 1000)
     private String profileImage;
 
     @Column(nullable = false)
