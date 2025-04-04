@@ -39,6 +39,15 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(e.getErrorCode(), e.getErrorMessage()));
     }
 
+    @ExceptionHandler(CommentException.class)
+    public ResponseEntity<ErrorResponse> handleCommentException(CommentException e){
+        log.error("{}", e.getErrorCode());
+
+        return ResponseEntity
+                .status(e.getErrorCode().getHttpStatus())
+                .body(new ErrorResponse(e.getErrorCode(), e.getErrorMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e){
         log.error("{}", e.getMessage());
