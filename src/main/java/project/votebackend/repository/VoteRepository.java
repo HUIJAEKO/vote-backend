@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import project.votebackend.domain.Vote;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface VoteRepository extends JpaRepository<Vote, Long> {
@@ -68,4 +69,12 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     Page<Vote> findBookmarkedVotes(@Param("userId") Long userId, Pageable pageable);
 
 
+    //단일 글
+    @Query("SELECT v FROM Vote v " +
+            "JOIN FETCH v.user " +
+            "LEFT JOIN FETCH v.options o " +
+            "LEFT JOIN FETCH v.reactions r " +
+            "LEFT JOIN FETCH v.images i " +
+            "WHERE v.voteId = :voteId")
+    Optional<Vote> findByIdWithUserAndOptions(@Param("voteId") Long voteId);
 }
