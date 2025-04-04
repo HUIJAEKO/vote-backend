@@ -10,6 +10,7 @@ import project.votebackend.dto.CreateVoteRequest;
 import project.votebackend.dto.LoadVoteDto;
 import project.votebackend.exception.AuthException;
 import project.votebackend.exception.CategoryException;
+import project.votebackend.exception.VoteException;
 import project.votebackend.repository.*;
 import project.votebackend.type.ErrorCode;
 
@@ -84,4 +85,12 @@ public class VoteService {
         // DTO로 변환 (득표수, 선택 옵션)
         return votes.map(vote -> LoadVoteDto.fromEntity(vote, userId, voteSelectRepository));
     }
+
+    //단일 투표 불러오기
+    public LoadVoteDto getVoteById(Long voteId, Long userId) {
+        Vote vote = voteRepository.findByIdWithUserAndOptions(voteId)
+                .orElseThrow(() -> new VoteException(ErrorCode.VOTE_NOT_FOUND));
+        return LoadVoteDto.fromEntity(vote, userId, voteSelectRepository);
+    }
+
 }

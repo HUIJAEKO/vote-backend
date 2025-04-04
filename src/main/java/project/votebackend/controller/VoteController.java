@@ -42,4 +42,14 @@ public class VoteController {
         Page<LoadVoteDto> vote = voteService.getMainPageVotes(userDetails.getId(), pageable);
         return ResponseEntity.ok(vote);
     }
+
+    //단일 투표 불러오기
+    @GetMapping("/{voteId}")
+    public ResponseEntity<LoadVoteDto> getVoteById(
+            @PathVariable Long voteId,
+            @AuthenticationPrincipal CustumUserDetails userDetails
+    ) {
+        LoadVoteDto voteDto = voteService.getVoteById(voteId, userDetails.getId());
+        return ResponseEntity.ok(voteDto);
+    }
 }
