@@ -3,6 +3,9 @@ package project.votebackend.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "comment")
 @Getter
@@ -25,7 +28,12 @@ public class Comment extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "connent_id")
-    private Comment comment;
+    private Comment parent;
 
     private String content;
+
+    private int likeCount = 0;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> children = new ArrayList<>();
 }
