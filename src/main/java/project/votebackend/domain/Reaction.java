@@ -5,7 +5,12 @@ import lombok.*;
 import project.votebackend.type.ReactionType;
 
 @Entity
-@Table(name = "reaction")
+@Table(
+        name = "reaction",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "vote_id", "reaction"})
+        }
+)
 @Getter
 @Setter
 @Builder

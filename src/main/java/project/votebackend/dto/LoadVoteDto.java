@@ -6,10 +6,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import project.votebackend.domain.Vote;
+import project.votebackend.domain.VoteOption;
 import project.votebackend.repository.VoteSelectRepository;
 import project.votebackend.type.ReactionType;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,6 +65,7 @@ public class LoadVoteDto {
 
         // 각 옵션의 투표 수 계산
         List<VoteOptionDto> voteOptions = vote.getOptions().stream()
+                .sorted(Comparator.comparing(VoteOption::getOptionId))
                 .map(option -> {
                     int voteCount = voteSelectRepository.countByOptionId(option.getOptionId());
                     return VoteOptionDto.fromEntity(option, voteCount);
