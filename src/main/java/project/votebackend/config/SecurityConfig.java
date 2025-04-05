@@ -24,7 +24,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 X (JWT 사용 예정)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**", "/image/upload").permitAll() // 로그인 & 업로드 허용
-                .requestMatchers("/vote/**", "/reaction/**", "/storage/**", "user/**").authenticated() // 투표 생성은 인증 필요
+                .requestMatchers("/vote/**", "/reaction/**", "/storage/**", "user/**", "comment/**").authenticated() // 투표 생성은 인증 필요
                 .anyRequest().permitAll()
             )
 
