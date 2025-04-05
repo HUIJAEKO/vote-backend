@@ -23,7 +23,8 @@ public enum ErrorCode {
     VOTE_ALREADY_FINISHED(HttpStatus.CONFLICT, "이미 종료된 투표입니다."),
 
     //Comment
-    PARENT_COMMENT_NOT_FOUND(HttpStatus.CONFLICT, "부모 댓글이 존재하지 않습니다.");
+    PARENT_COMMENT_NOT_FOUND(HttpStatus.CONFLICT, "부모 댓글이 존재하지 않습니다."),
+    COMMENT_NOT_FOUNT(HttpStatus.CONFLICT, "존재하지 않는 댓글입니다.");
 
     private final HttpStatus httpStatus;
     private final String description;

@@ -10,6 +10,8 @@ import project.votebackend.dto.CommentRequest;
 import project.votebackend.dto.CommentResponse;
 import project.votebackend.service.CommentService;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/comment")
@@ -17,6 +19,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    //댓글 작성
     @PostMapping("/{voteId}")
     public ResponseEntity<CommentResponse> addComment(
             @PathVariable Long voteId,
@@ -31,5 +34,15 @@ public class CommentController {
         );
 
         return ResponseEntity.ok(new CommentResponse(comment));
+    }
+
+    //댓글 조회
+    @GetMapping("/{voteId}")
+    public ResponseEntity<List<CommentResponse>> getComments(
+            @PathVariable Long voteId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        List<CommentResponse> comments = commentService.getComments(voteId);
+        return ResponseEntity.ok(comments);
     }
 }
