@@ -1,6 +1,5 @@
 package project.votebackend.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import project.votebackend.domain.Comment;
 
@@ -12,6 +11,7 @@ public class CommentResponse {
     private String username;
     private String content;
     private LocalDateTime createdAt;
+    private String profileImage;
     private int likeCount;
     private Long parentId;
 
@@ -21,6 +21,7 @@ public class CommentResponse {
         this.content = comment.getContent();
         this.createdAt = comment.getCreatedAt();
         this.likeCount = comment.getLikeCount();
+        this.profileImage = comment.getUser().getProfileImage();
         this.parentId = comment.getParent() != null ? comment.getParent().getCommentId() : null;
     }
 }
