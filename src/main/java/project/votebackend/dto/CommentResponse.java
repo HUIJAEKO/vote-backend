@@ -1,5 +1,6 @@
 package project.votebackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import project.votebackend.domain.Comment;
 
@@ -15,13 +16,22 @@ public class CommentResponse {
     private int likeCount;
     private Long parentId;
 
-    public CommentResponse(Comment comment) {
-        this.id = comment.getCommentId();
-        this.username = comment.getUser().getUsername();
-        this.content = comment.getContent();
-        this.createdAt = comment.getCreatedAt();
-        this.likeCount = comment.getLikeCount();
-        this.profileImage = comment.getUser().getProfileImage();
-        this.parentId = comment.getParent() != null ? comment.getParent().getCommentId() : null;
+    @JsonProperty("isLiked")
+    private boolean isLiked;
+
+    public static CommentResponse fromEntity(Comment comment, Long currentUserId) {
+        boolean isLiked = comment.getCommentLikes().stream()
+                .anyMatch(like -> like.getUser().getUserId().equals(currentUserId));
+
+        CommentResponse dto = new CommentResponse();
+        dto.id = comment.getCommentId();
+        dto.username = comment.getUser().getUsername();
+        dto.content = comment.getContent();
+        dto.createdAt = comment.getCreatedAt();
+        dto.profileImage = comment.getUser().getProfileImage();
+        dto.likeCount = comment.getLikeCount();
+        dto.parentId = comment.getParent() != null ? comment.getParent().getCommentId() : null;
+        dto.isLiked = isLiked;
+        return dto;
     }
 }
