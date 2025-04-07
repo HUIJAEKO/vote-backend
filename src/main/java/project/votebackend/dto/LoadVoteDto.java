@@ -49,6 +49,7 @@ public class LoadVoteDto {
         int commentCount = vote.getComments() != null ? vote.getComments().size() : 0;
         int likeCount = (int) vote.getReactions().stream()
                 .filter(r -> r.getReaction() == ReactionType.LIKE)
+                .distinct()
                 .count();
 
         boolean isLiked = vote.getReactions().stream()

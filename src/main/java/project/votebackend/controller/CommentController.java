@@ -39,8 +39,7 @@ public class CommentController {
     //댓글 조회
     @GetMapping("/{voteId}")
     public ResponseEntity<List<CommentResponse>> getComments(
-            @PathVariable Long voteId,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @PathVariable Long voteId) {
 
         List<CommentResponse> comments = commentService.getComments(voteId);
         return ResponseEntity.ok(comments);
