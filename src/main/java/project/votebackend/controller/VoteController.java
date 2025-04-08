@@ -34,6 +34,23 @@ public class VoteController {
         return ResponseEntity.ok(response);
     }
 
+    // 투표 수정
+    @PutMapping("/{voteId}")
+    public ResponseEntity<?> updateVote(@PathVariable Long voteId,
+                                        @RequestBody VoteUpdateRequest request,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        voteService.updateVote(voteId, request, userDetails.getUsername());
+        return ResponseEntity.ok("success");
+    }
+
+    // 투표 삭제
+    @DeleteMapping("/{voteId}")
+    public ResponseEntity<?> deleteVote(@PathVariable Long voteId,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        voteService.deleteVote(voteId, userDetails.getUsername());
+        return ResponseEntity.ok("success");
+    }
+
     //메인페이지 투표 불러오기 (자신이 작성한, 자신이 선택한 카테고리의 글)
     @GetMapping("/load-main-page-votes")
     public ResponseEntity<Page<LoadVoteDto>> loadMainPageVotes(

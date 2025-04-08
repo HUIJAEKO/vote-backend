@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import project.votebackend.domain.*;
 import project.votebackend.dto.CreateVoteRequest;
 import project.votebackend.dto.LoadVoteDto;
+import project.votebackend.dto.VoteUpdateRequest;
 import project.votebackend.exception.AuthException;
 import project.votebackend.exception.CategoryException;
 import project.votebackend.exception.VoteException;
@@ -27,6 +28,7 @@ public class VoteService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final VoteSelectRepository voteSelectRepository;
+    private final VoteOptionRepository voteOptionRepository;
 
     //투표 생성
     @Transactional
@@ -69,6 +71,49 @@ public class VoteService {
         }
 
         return voteRepository.save(vote);
+    }
+
+    // 투표 수정
+    @Transactional
+    public void updateVote(Long voteId, VoteUpdateRequest request, String username) {
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new VoteException(ErrorCode.VOTE_NOT_FOUND));
+
+        if (!vote.getUser().getUsername().equals(username)) {
+            throw new AuthException(ErrorCode.USER_NOT_MATCHED);
+        }
+
+        vote.setTitle(request.getTitle());
+        vote.setContent(request.getContent());
+        vote.setFinishTime(request.getFinishTime());
+
+        // 카테고리 설정
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
+        vote.setCategory(category);
+
+        // 자식 테이블 먼저 삭제
+        voteSelectRepository.deleteByOption_Vote_VoteId(voteId);
+
+        // 기존 옵션 삭제 후 새 옵션 저장
+        voteOptionRepository.deleteByVote_VoteId(voteId);
+        List<VoteOption> newOptions = request.getOptions().stream()
+                .map(option -> new VoteOption(option, vote))
+                .collect(Collectors.toList());
+        voteOptionRepository.saveAll(newOptions);
+    }
+
+    // 투표 삭제
+    @Transactional
+    public void deleteVote(Long voteId, String username) {
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new VoteException(ErrorCode.VOTE_NOT_FOUND));
+
+        if (!vote.getUser().getUsername().equals(username)) {
+            throw new AuthException(ErrorCode.USER_NOT_MATCHED);
+        }
+
+        voteRepository.delete(vote);
     }
 
     // 메인페이지 투표 불러오기 (자신이 작성한, 자신이 선택한 카테고리의 글)
