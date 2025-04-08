@@ -7,11 +7,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import project.votebackend.domain.Vote;
 import project.votebackend.dto.*;
 import project.votebackend.security.CustumUserDetails;
 import project.votebackend.service.VoteService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,5 +54,14 @@ public class VoteController {
     ) {
         LoadVoteDto voteDto = voteService.getVoteById(voteId, userDetails.getId());
         return ResponseEntity.ok(voteDto);
+    }
+
+    //좋아요 수 상의 10개의 게시물
+    @GetMapping("/top-liked")
+    public ResponseEntity<List<LoadVoteDto>> getTopLikedVotes(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        List<LoadVoteDto> result = voteService.getTop10LikedVotes(userDetails.getUsername());
+        return ResponseEntity.ok(result);
     }
 }
