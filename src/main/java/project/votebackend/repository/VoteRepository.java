@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import project.votebackend.domain.Vote;
+import project.votebackend.type.ReactionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +61,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     @EntityGraph(attributePaths = {
             "reactions", "category", "user", "images", "options"
     })
-        @Query("""
+    @Query("""
         SELECT DISTINCT v FROM Vote v
         JOIN v.reactions r
         WHERE r.user.userId = :userId AND r.reaction = 'BOOKMARK'
@@ -77,4 +78,18 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
             "LEFT JOIN FETCH v.images i " +
             "WHERE v.voteId = :voteId")
     Optional<Vote> findByIdWithUserAndOptions(@Param("voteId") Long voteId);
+
+    //좋아요 상위 10개의 글
+    @Query("""
+        SELECT v
+        FROM Vote v
+        JOIN v.reactions r
+        WHERE r.reaction = :reactionType
+        GROUP BY v
+        ORDER BY COUNT(r) DESC
+    """)
+    List<Vote> findTop10ByReactionTypeOrderByLikeCountDesc(
+            @Param("reactionType") ReactionType reactionType,
+            Pageable pageable
+    );
 }
