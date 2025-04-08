@@ -22,4 +22,7 @@ public interface VoteSelectRepository extends JpaRepository<VoteSelection, Long>
     // 해당 옵션에 대한 투표 수
     @Query(value = "SELECT COUNT(*) FROM vote_selections WHERE option_id = :optionId", nativeQuery = true)
     int countByOptionId(@Param("optionId") Long optionId);
+
+    //vote_option을 참조하는 vote_selection
+    void deleteByOption_Vote_VoteId(Long voteId);
 }

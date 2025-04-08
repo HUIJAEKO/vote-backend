@@ -6,4 +6,5 @@ import project.votebackend.domain.VoteOption;
 
 @Repository
 public interface VoteOptionRepository extends JpaRepository<VoteOption, Long> {
+    void deleteByVote_VoteId(Long voteId);
 }
