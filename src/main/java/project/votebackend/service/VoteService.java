@@ -2,6 +2,7 @@ package project.votebackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import project.votebackend.exception.CategoryException;
 import project.votebackend.exception.VoteException;
 import project.votebackend.repository.*;
 import project.votebackend.type.ErrorCode;
+import project.votebackend.type.ReactionType;
 
 import java.util.List;
 import java.util.Set;
@@ -93,4 +95,19 @@ public class VoteService {
         return LoadVoteDto.fromEntity(vote, userId, voteSelectRepository);
     }
 
+    //상위 10개의 게시물
+    public List<LoadVoteDto> getTop10LikedVotes(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
+
+        Pageable pageable = PageRequest.of(0, 10); // 상위 10개
+        List<Vote> votes = voteRepository.findTop10ByReactionTypeOrderByLikeCountDesc(
+                ReactionType.LIKE,
+                pageable
+        );
+
+        return votes.stream()
+                .map(vote -> LoadVoteDto.fromEntity(vote, user.getUserId(), voteSelectRepository))
+                .collect(Collectors.toList());
+    }
 }
