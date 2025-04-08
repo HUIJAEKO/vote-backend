@@ -1,13 +1,17 @@
 package project.votebackend.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "vote_option")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class VoteOption {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,4 +22,9 @@ public class VoteOption {
     private Vote vote;
 
     private String option;
+
+    public VoteOption(String option, Vote vote) {
+        this.option = option;
+        this.vote = vote;
+    }
 }
