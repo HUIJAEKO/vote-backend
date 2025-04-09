@@ -55,10 +55,37 @@ public class CommentService {
                 .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
 
         List<Comment> comments = commentRepository
-                .findByVote_VoteIdAndParentIsNullOrderByCreatedAtDesc(voteId);
+                .findByVote_VoteIdOrderByCreatedAtAsc(voteId);
 
         return comments.stream()
                 .map(comment -> CommentResponse.fromEntity(comment, user.getUserId()))
                 .collect(Collectors.toList());
+    }
+
+    //댓글 수정
+    @Transactional
+    public CommentResponse editComment(Long commentId, String content, String username) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentException(ErrorCode.COMMENT_NOT_FOUNT));
+
+        if (!comment.getUser().getUsername().equals(username)) {
+            throw new AuthException(ErrorCode.USER_NOT_MATCHED);
+        }
+
+        comment.setContent(content);
+        return CommentResponse.fromEntity(comment, comment.getUser().getUserId());
+    }
+
+    //댓글 삭제
+    @Transactional
+    public void deleteComment(Long commentId, String username) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentException(ErrorCode.COMMENT_NOT_FOUNT));
+
+        if (!comment.getUser().getUsername().equals(username)) {
+            throw new AuthException(ErrorCode.USER_NOT_MATCHED);
+        }
+
+        commentRepository.delete(comment);
     }
 }
