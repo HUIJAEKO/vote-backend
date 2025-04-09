@@ -5,13 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import project.votebackend.domain.Comment;
 import project.votebackend.dto.CommentRequest;
 import project.votebackend.dto.CommentResponse;
-import project.votebackend.exception.AuthException;
-import project.votebackend.repository.UserRepository;
 import project.votebackend.service.CommentService;
-import project.votebackend.type.ErrorCode;
 
 import java.util.List;
 
@@ -47,5 +43,31 @@ public class CommentController {
 
         List<CommentResponse> comments = commentService.getComments(voteId, userDetails.getUsername());
         return ResponseEntity.ok(comments);
+    }
+
+    // 댓글 수정
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentResponse> editComment(
+            @PathVariable Long commentId,
+            @RequestBody CommentRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        CommentResponse response = commentService.editComment(
+                commentId,
+                request.getContent(),
+                userDetails.getUsername()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<?> deleteComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        commentService.deleteComment(commentId, userDetails.getUsername());
+        return ResponseEntity.ok("success");
     }
 }
