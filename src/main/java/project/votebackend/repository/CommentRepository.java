@@ -8,5 +8,5 @@
 
     @Repository
     public interface CommentRepository extends JpaRepository<Comment, Long> {
-        List<Comment> findByVote_VoteIdAndParentIsNullOrderByCreatedAtDesc(Long voteId); // 최신순 정렬
+        List<Comment> findByVote_VoteIdOrderByCreatedAtAsc(Long voteId); // 최신순 정렬
     }
