@@ -1,0 +1,26 @@
+package project.votebackend.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import project.votebackend.elasticSearch.VoteDocument;
+import project.votebackend.service.SearchService;
+
+import java.io.IOException;
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/search")
+public class SearchController {
+
+    private final SearchService searchService;
+
+    //검색어 입력
+    @GetMapping
+    public List<VoteDocument> searchVotes(@RequestParam("keyword") String keyword) throws IOException {
+        return searchService.searchVotes(keyword);
+    }
+}

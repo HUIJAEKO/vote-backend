@@ -1,5 +1,6 @@
 package project.votebackend.service;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +11,7 @@ import project.votebackend.domain.*;
 import project.votebackend.dto.CreateVoteRequest;
 import project.votebackend.dto.LoadVoteDto;
 import project.votebackend.dto.VoteUpdateRequest;
+import project.votebackend.elasticSearch.VoteDocument;
 import project.votebackend.exception.AuthException;
 import project.votebackend.exception.CategoryException;
 import project.votebackend.exception.VoteException;
@@ -17,6 +19,7 @@ import project.votebackend.repository.*;
 import project.votebackend.type.ErrorCode;
 import project.votebackend.type.ReactionType;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +32,8 @@ public class VoteService {
     private final CategoryRepository categoryRepository;
     private final VoteSelectRepository voteSelectRepository;
     private final VoteOptionRepository voteOptionRepository;
+    private final ElasticsearchClient elasticsearchClient;
+
 
     //투표 생성
     @Transactional
@@ -70,7 +75,21 @@ public class VoteService {
             vote.setImages(images);
         }
 
-        return voteRepository.save(vote);
+        Vote savedVote = voteRepository.save(vote);
+
+        //Elasticsearch에 저장
+        try {
+            VoteDocument voteDocument = VoteDocument.fromEntity(savedVote);
+            elasticsearchClient.index(i -> i
+                    .index("votes")
+                    .id(String.valueOf(voteDocument.getId()))
+                    .document(voteDocument)
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return savedVote;
     }
 
     // 투표 수정
