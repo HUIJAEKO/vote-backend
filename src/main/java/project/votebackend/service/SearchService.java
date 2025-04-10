@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import project.votebackend.elasticSearch.UserDocument;
 import project.votebackend.elasticSearch.VoteDocument;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 
@@ -30,6 +31,23 @@ public class SearchService {
                                 )
                         ),
                 VoteDocument.class
+        );
+
+        return response.hits().hits().stream()
+                .map(Hit::source)
+                .collect(Collectors.toList());
+    }
+
+    //유저 검색
+    public List<UserDocument> searchUsers(String keyword) throws IOException {
+        SearchResponse<UserDocument> response = elasticsearchClient.search(s -> s
+                        .index("users")
+                        .query(q -> q
+                                .bool(b -> b
+                                        .should(QueryBuilders.match(m -> m.field("username").query(keyword)))
+                                )
+                        ),
+                UserDocument.class
         );
 
         return response.hits().hits().stream()
