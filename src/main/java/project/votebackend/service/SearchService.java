@@ -25,8 +25,14 @@ public class SearchService {
                         .index("votes")
                         .query(q -> q
                                 .bool(b -> b
-                                        .should(QueryBuilders.match(m -> m.field("title").query(keyword)))
-                                        .should(QueryBuilders.match(m -> m.field("username").query(keyword)))
+                                        .should(QueryBuilders.match(m -> m
+                                                .field("title")
+                                                .query(keyword)
+                                                .fuzziness("AUTO")))
+                                        .should(QueryBuilders.match(m -> m
+                                                .field("username")
+                                                .query(keyword)
+                                                .fuzziness("AUTO")))
                                         .should(QueryBuilders.term(t -> t.field("category.keyword").value(keyword)))
                                 )
                         ),
@@ -44,7 +50,10 @@ public class SearchService {
                         .index("users")
                         .query(q -> q
                                 .bool(b -> b
-                                        .should(QueryBuilders.match(m -> m.field("username").query(keyword)))
+                                        .should(QueryBuilders.match(m -> m
+                                                .field("username").query(keyword)
+                                                .query(keyword)
+                                                .fuzziness("AUTO")))
                                 )
                         ),
                 UserDocument.class
