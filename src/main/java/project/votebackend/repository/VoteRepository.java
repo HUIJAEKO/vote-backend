@@ -96,4 +96,6 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
             @Param("reactionType") ReactionType reactionType,
             Pageable pageable
     );
+
+    Long countByUser_UserId(Long userId);
 }

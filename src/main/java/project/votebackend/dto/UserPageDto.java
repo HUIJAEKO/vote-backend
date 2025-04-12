@@ -12,6 +12,9 @@ public class UserPageDto {
     private String profileImage;
     private String introduction;
     private Long point;
+    private Long followerCount;
+    private Long followingCount;
+    private Long postCount;
     private Page<LoadVoteDto> posts;
 
 

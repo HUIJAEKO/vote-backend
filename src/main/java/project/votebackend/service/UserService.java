@@ -11,6 +11,7 @@ import project.votebackend.domain.Vote;
 import project.votebackend.dto.LoadVoteDto;
 import project.votebackend.dto.UserPageDto;
 import project.votebackend.exception.AuthException;
+import project.votebackend.repository.FollowRepository;
 import project.votebackend.repository.UserRepository;
 import project.votebackend.repository.VoteRepository;
 import project.votebackend.repository.VoteSelectRepository;
@@ -23,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final VoteRepository voteRepository;
     private final VoteSelectRepository voteSelectRepository;
+    private final FollowRepository followRepository;
 
     //마이페이지 조회
     public UserPageDto getMyPage(Long userId, Pageable pageable) {
@@ -34,12 +36,19 @@ public class UserService {
         Page<Vote> votes = voteRepository.findByUser_UserId(userId, sortedPageable);
         Page<LoadVoteDto> voteDto = votes.map(v -> LoadVoteDto.fromEntity(v, userId, voteSelectRepository));
 
+        Long postCount = voteRepository.countByUser_UserId(userId);
+        Long followerCount = followRepository.countByFollowingId(userId);
+        Long followingCount = followRepository.countByFollowerId(userId);
+
         return UserPageDto.builder()
                 .username(user.getUsername())
                 .profileImage(user.getProfileImage())
                 .introduction(user.getIntroduction())
                 .point(user.getPoint())
                 .posts(voteDto)
+                .postCount(postCount)
+                .followerCount(followerCount)
+                .followingCount(followingCount)
                 .build();
     }
 
@@ -56,12 +65,19 @@ public class UserService {
         Page<Vote> votes = voteRepository.findByUser_UserId(userId, sortedPageable);
         Page<LoadVoteDto> voteDto = votes.map(v -> LoadVoteDto.fromEntity(v, userId, voteSelectRepository));
 
+        Long postCount = voteRepository.countByUser_UserId(userId);
+        Long followerCount = followRepository.countByFollowingId(userId);
+        Long followingCount = followRepository.countByFollowerId(userId);
+
         return UserPageDto.builder()
                 .username(user.getUsername())
                 .profileImage(user.getProfileImage())
                 .introduction(user.getIntroduction())
                 .point(user.getPoint())
                 .posts(voteDto)
+                .postCount(postCount)
+                .followerCount(followerCount)
+                .followingCount(followingCount)
                 .build();
     }
 }
