@@ -25,7 +25,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**", "/image/upload").permitAll() // 로그인 & 업로드 허용
                 .requestMatchers("/vote/**", "/reaction/**", "/storage/**", "user/**",
-                        "comment/**", "comment-like/**", "search/**").authenticated() // 나머지는 인증 필요
+                        "comment/**", "comment-like/**", "search/**", "follow/**").authenticated() // 나머지는 인증 필요
                 .anyRequest().permitAll()
             )
 
