@@ -48,6 +48,15 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(e.getErrorCode(), e.getErrorMessage()));
     }
 
+    @ExceptionHandler(FollowException.class)
+    public ResponseEntity<ErrorResponse> handleFollowException(FollowException e){
+        log.error("{}", e.getErrorCode());
+
+        return ResponseEntity
+                .status(e.getErrorCode().getHttpStatus())
+                .body(new ErrorResponse(e.getErrorCode(), e.getErrorMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e){
         log.error("{}", e.getMessage());
