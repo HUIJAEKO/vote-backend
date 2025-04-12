@@ -80,7 +80,7 @@ public class AuthService {
             throw new AuthException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
 
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername(), user.getUserId());
         return new LoginResponse("success", token);
     }
 }
