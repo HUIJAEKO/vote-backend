@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 
 @Data
 @Builder
-public class MyPageDto {
+public class UserPageDto {
 
     private String username;
     private String profileImage;
