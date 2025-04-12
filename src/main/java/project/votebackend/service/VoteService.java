@@ -66,13 +66,15 @@ public class VoteService {
 
         vote.setOptions(options);
 
-        // 미디어 추가
-        if (request.getMediaUrl() != null && !request.getMediaUrl().isBlank()) {
-            VoteImage img = new VoteImage();
-            img.setVote(vote);
-            img.setImageUrl(request.getMediaUrl());
-
-            vote.setImages(Set.of(img));
+        // 이미지 추가
+        if (request.getImageUrls() != null) {
+            Set<VoteImage> images = request.getImageUrls().stream().map(url -> {
+                VoteImage img = new VoteImage();
+                img.setVote(vote);
+                img.setImageUrl(url);
+                return img;
+            }).collect(Collectors.toSet());
+            vote.setImages(images);
         }
 
         Vote savedVote = voteRepository.save(vote);
