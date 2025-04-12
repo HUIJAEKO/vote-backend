@@ -13,5 +13,5 @@ public class CreateVoteRequest {
     private String content;
     private LocalDateTime finishTime;
     private List<String> options;
-    private String mediaUrl;
+    private List<String> imageUrls;
 }
