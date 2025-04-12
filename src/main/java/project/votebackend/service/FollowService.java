@@ -2,9 +2,12 @@ package project.votebackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import project.votebackend.domain.Follow;
+import project.votebackend.exception.AuthException;
 import project.votebackend.exception.FollowException;
 import project.votebackend.repository.FollowRepository;
+import project.votebackend.repository.UserRepository;
 import project.votebackend.type.ErrorCode;
 
 @Service
@@ -12,9 +15,19 @@ import project.votebackend.type.ErrorCode;
 public class FollowService {
 
     private final FollowRepository followRepository;
+    private final UserRepository userRepository;
+
+    private Long getUserIdByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND))
+                .getUserId();
+    }
 
     //팔로우
-    public Long follow(Long followerId, Long followingId) {
+    @Transactional
+    public Long follow(String username, Long followingId) {
+        Long followerId = getUserIdByUsername(username);
+
         followRepository.findByFollowerIdAndFollowingId(followerId, followingId)
                 .ifPresent(f -> {
                     try {
@@ -34,7 +47,15 @@ public class FollowService {
     }
 
     //언팔로우
-    public void unfollow(Long followerId, Long followingId) {
+    @Transactional
+    public void unfollow(String username, Long followingId) {
+        Long followerId = getUserIdByUsername(username);
         followRepository.deleteByFollowerIdAndFollowingId(followerId, followingId);
+    }
+
+    //팔로우 여부 확인
+    public boolean isFollowing(String username, Long followingId) {
+        Long followerId = getUserIdByUsername(username);
+        return followRepository.findByFollowerIdAndFollowingId(followerId, followingId).isPresent();
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import project.votebackend.dto.UserPageDto;
+import project.votebackend.repository.UserRepository;
 import project.votebackend.security.CustumUserDetails;
 import project.votebackend.service.UserService;
 
@@ -17,6 +18,7 @@ import project.votebackend.service.UserService;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
     //마이페이지 조회
     @GetMapping("/mypage")
