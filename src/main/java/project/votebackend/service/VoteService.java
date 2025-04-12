@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import project.votebackend.domain.*;
 import project.votebackend.dto.CreateVoteRequest;
 import project.votebackend.dto.LoadVoteDto;
-import project.votebackend.dto.VoteUpdateRequest;
 import project.votebackend.elasticSearch.VoteDocument;
 import project.votebackend.exception.AuthException;
 import project.votebackend.exception.CategoryException;
@@ -19,7 +18,9 @@ import project.votebackend.repository.*;
 import project.votebackend.type.ErrorCode;
 import project.votebackend.type.ReactionType;
 
+import java.awt.*;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ public class VoteService {
     private final VoteSelectRepository voteSelectRepository;
     private final VoteOptionRepository voteOptionRepository;
     private final ElasticsearchClient elasticsearchClient;
+    private final VoteImageRepository voteImageRepository;
 
 
     //투표 생성
@@ -64,15 +66,13 @@ public class VoteService {
 
         vote.setOptions(options);
 
-        // 이미지 추가
-        if (request.getImageUrls() != null) {
-            Set<VoteImage> images = request.getImageUrls().stream().map(url -> {
-                VoteImage img = new VoteImage();
-                img.setVote(vote);
-                img.setImageUrl(url);
-                return img;
-            }).collect(Collectors.toSet());
-            vote.setImages(images);
+        // 미디어 추가
+        if (request.getMediaUrl() != null && !request.getMediaUrl().isBlank()) {
+            VoteImage img = new VoteImage();
+            img.setVote(vote);
+            img.setImageUrl(request.getMediaUrl());
+
+            vote.setImages(Set.of(img));
         }
 
         Vote savedVote = voteRepository.save(vote);
@@ -92,34 +92,40 @@ public class VoteService {
         return savedVote;
     }
 
-    // 투표 수정
+    // 투표 재업로드
     @Transactional
-    public void updateVote(Long voteId, VoteUpdateRequest request, String username) {
-        Vote vote = voteRepository.findById(voteId)
+    public Long reuploadVote(Long originalVoteId, LocalDateTime newFinishTime, String username) {
+        Vote original = voteRepository.findById(originalVoteId)
                 .orElseThrow(() -> new VoteException(ErrorCode.VOTE_NOT_FOUND));
 
-        if (!vote.getUser().getUsername().equals(username)) {
+        if (!original.getUser().getUsername().equals(username)) {
             throw new AuthException(ErrorCode.USER_NOT_MATCHED);
         }
 
-        vote.setTitle(request.getTitle());
-        vote.setContent(request.getContent());
-        vote.setFinishTime(request.getFinishTime());
+        // 새로운 투표 객체 생성
+        Vote newVote = new Vote();
+        newVote.setTitle(original.getTitle());
+        newVote.setContent(original.getContent());
+        newVote.setCategory(original.getCategory());
+        newVote.setUser(original.getUser());
+        newVote.setFinishTime(newFinishTime);
+        voteRepository.save(newVote);
 
-        // 카테고리 설정
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
-        vote.setCategory(category);
-
-        // 자식 테이블 먼저 삭제
-        voteSelectRepository.deleteByOption_Vote_VoteId(voteId);
-
-        // 기존 옵션 삭제 후 새 옵션 저장
-        voteOptionRepository.deleteByVote_VoteId(voteId);
-        List<VoteOption> newOptions = request.getOptions().stream()
-                .map(option -> new VoteOption(option, vote))
+        // 옵션 복사
+        List<VoteOption> newOptions = original.getOptions().stream()
+                .map(opt -> new VoteOption(opt.getOption(), newVote))
                 .collect(Collectors.toList());
         voteOptionRepository.saveAll(newOptions);
+
+        // 이미지 복사
+        if (original.getImages() != null) {
+            List<VoteImage> newImages = original.getImages().stream()
+                    .map((VoteImage img) -> new VoteImage(img.getImageUrl(), newVote))
+                    .collect(Collectors.toList());
+            voteImageRepository.saveAll(newImages);
+        }
+
+        return newVote.getVoteId();
     }
 
     // 투표 삭제
