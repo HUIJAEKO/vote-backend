@@ -25,7 +25,11 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     })
     @Query("""
         SELECT v FROM Vote v
-        WHERE v.user.userId = :userId OR v.category.categoryId IN :categoryIds
+        WHERE v.user.userId = :userId
+           OR v.category.categoryId IN :categoryIds
+           OR v.user.userId IN (
+                SELECT f.followingId FROM Follow f WHERE f.followerId = :userId
+           )
         ORDER BY v.createdAt DESC
     """)
     Page<Vote> findMainPageVotes(@Param("userId") Long userId, @Param("categoryIds") List<Long> categoryIds, Pageable pageable);
