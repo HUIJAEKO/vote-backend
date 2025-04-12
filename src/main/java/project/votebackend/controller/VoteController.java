@@ -15,6 +15,7 @@ import project.votebackend.security.CustumUserDetails;
 import project.votebackend.service.VoteService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,13 +35,13 @@ public class VoteController {
         return ResponseEntity.ok(response);
     }
 
-    // 투표 수정
-    @PutMapping("/{voteId}")
-    public ResponseEntity<?> updateVote(@PathVariable Long voteId,
-                                        @RequestBody VoteUpdateRequest request,
-                                        @AuthenticationPrincipal UserDetails userDetails) {
-        voteService.updateVote(voteId, request, userDetails.getUsername());
-        return ResponseEntity.ok("success");
+    // 투표 재업로드
+    @PostMapping("/{voteId}/reupload")
+    public ResponseEntity<?> reuploadVote(@PathVariable Long voteId,
+                                          @RequestBody VoteReuploadRequest request,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
+        Long newVoteId = voteService.reuploadVote(voteId, request.getFinishTime(), userDetails.getUsername());
+        return ResponseEntity.ok(Map.of("newVoteId", newVoteId));
     }
 
     // 투표 삭제
