@@ -97,5 +97,17 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
             Pageable pageable
     );
 
+    //사용자의 게시글 개수
     Long countByUser_UserId(Long userId);
+
+    //특정 카테고리의 글 조회
+    @Query("""
+        SELECT v
+        FROM Vote v
+        LEFT JOIN v.reactions r ON r.reaction = 'LIKE'
+        WHERE v.category.categoryId = :categoryId
+        GROUP BY v
+        ORDER BY COUNT(r) DESC
+    """)
+    Page<Vote> findByCategoryOrderByLikeCount(@Param("categoryId") Long categoryId, Pageable pageable);
 }

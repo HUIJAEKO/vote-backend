@@ -82,4 +82,16 @@ public class VoteController {
         List<LoadVoteDto> result = voteService.getTop10LikedVotes(userDetails.getUsername());
         return ResponseEntity.ok(result);
     }
+
+    //특정 카테고리의 게시물 불러오기
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<Page<LoadVoteDto>> getVotesByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        Page<LoadVoteDto> result = voteService.getVotesByCategorySortedByLike(categoryId, page, size, userDetails.getUsername());
+        return ResponseEntity.ok(result);
+    }
 }

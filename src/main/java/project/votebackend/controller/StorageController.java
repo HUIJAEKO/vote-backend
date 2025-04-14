@@ -30,7 +30,6 @@ public class StorageController {
         return ResponseEntity.ok(storageService.getVotedPosts(userDetails.getId(), pageable));
     }
 
-
     //좋아요한 게시물 불러오기
     @GetMapping("/liked")
     public ResponseEntity<Page<LoadVoteDto>> getLikedPosts(
@@ -39,7 +38,6 @@ public class StorageController {
     ) {
         return ResponseEntity.ok(storageService.getLikedPosts(userDetails.getId(), pageable));
     }
-
 
     //북마크한 게시물 불러오기
     @GetMapping("/bookmarked")
