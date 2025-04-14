@@ -1,6 +1,10 @@
 package project.votebackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.votebackend.domain.Comment;
@@ -14,9 +18,6 @@ import project.votebackend.repository.CommentRepository;
 import project.votebackend.repository.UserRepository;
 import project.votebackend.repository.VoteRepository;
 import project.votebackend.type.ErrorCode;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,16 +51,14 @@ public class CommentService {
     }
 
     // 댓글 조회
-    public List<CommentResponse> getComments(Long voteId, String username) {
+    public Page<CommentResponse> getComments(Long voteId, String username, int page, int size) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
 
-        List<Comment> comments = commentRepository
-                .findByVote_VoteIdOrderByCreatedAtAsc(voteId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt")); // 오래된 순 정렬
+        Page<Comment> comments = commentRepository.findByVote_VoteId(voteId, pageable);
 
-        return comments.stream()
-                .map(comment -> CommentResponse.fromEntity(comment, user.getUserId()))
-                .collect(Collectors.toList());
+        return comments.map(comment -> CommentResponse.fromEntity(comment, user.getUserId()));
     }
 
     //댓글 수정
