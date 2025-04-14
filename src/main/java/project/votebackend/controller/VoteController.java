@@ -52,7 +52,7 @@ public class VoteController {
         return ResponseEntity.ok("success");
     }
 
-    //메인페이지 투표 불러오기 (자신이 작성한, 자신이 선택한 카테고리의 글)
+    //메인페이지 투표 불러오기 (자신이 작성한, 자신이 선택한 카테고리, 자신이 팔로우한 사람의 글)
     @GetMapping("/load-main-page-votes")
     public ResponseEntity<Page<LoadVoteDto>> loadMainPageVotes(
             @AuthenticationPrincipal CustumUserDetails userDetails,

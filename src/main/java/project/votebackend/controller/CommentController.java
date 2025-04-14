@@ -1,6 +1,7 @@
 package project.votebackend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,11 +38,13 @@ public class CommentController {
 
     // 댓글 조회
     @GetMapping("/{voteId}")
-    public ResponseEntity<List<CommentResponse>> getComments(
+    public ResponseEntity<Page<CommentResponse>> getComments(
             @PathVariable Long voteId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        List<CommentResponse> comments = commentService.getComments(voteId, userDetails.getUsername());
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        Page<CommentResponse> comments = commentService.getComments(voteId, userDetails.getUsername(), page, size);
         return ResponseEntity.ok(comments);
     }
 
