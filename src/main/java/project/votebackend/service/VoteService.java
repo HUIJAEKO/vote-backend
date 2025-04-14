@@ -18,7 +18,6 @@ import project.votebackend.repository.*;
 import project.votebackend.type.ErrorCode;
 import project.votebackend.type.ReactionType;
 
-import java.awt.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -182,4 +181,16 @@ public class VoteService {
                 .map(vote -> LoadVoteDto.fromEntity(vote, user.getUserId(), voteSelectRepository))
                 .collect(Collectors.toList());
     }
+
+    //특정 카테고리의 글 조회
+    public Page<LoadVoteDto> getVotesByCategorySortedByLike(Long categoryId, int page, int size, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Vote> votes = voteRepository.findByCategoryOrderByLikeCount(categoryId, pageable);
+
+        return votes.map(vote -> LoadVoteDto.fromEntity(vote, user.getUserId(), voteSelectRepository));
+    }
+
 }
