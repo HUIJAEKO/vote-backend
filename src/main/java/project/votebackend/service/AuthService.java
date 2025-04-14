@@ -71,6 +71,22 @@ public class AuthService {
         return savedUser;
     }
 
+    //아이디 중복 확인
+    public boolean isUsernameAvailable(String username) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new AuthException(ErrorCode.ALREADY_EXIST_NAME);
+        }
+        return true;
+    }
+
+    //전화번호 중복 확인
+    public boolean isPhoneAvailable(String phone) {
+        if (userRepository.findByPhone(phone).isPresent()) {
+            throw new AuthException(ErrorCode.ALREADY_EXIST_PHONE);
+        }
+        return true;
+    }
+
     //로그인
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
