@@ -19,7 +19,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     //내가 작성한 글
     Page<Vote> findByUser_UserId(Long userId, Pageable pageable);
 
-    //투표한 글 + 내가 선택한 관심사 글
+    //작성한 글 + 내가 선택한 관심사 + 팔로우한 사람의 글
     @EntityGraph(attributePaths = {
             "reactions", "category", "user", "images", "options"
     })
