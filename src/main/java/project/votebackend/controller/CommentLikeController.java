@@ -8,11 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import project.votebackend.exception.AuthException;
-import project.votebackend.repository.UserRepository;
 import project.votebackend.service.CommentLikeService;
-import project.votebackend.type.ErrorCode;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -18,7 +18,6 @@ import java.util.Map;
 public class FollowController {
 
     private final FollowService followService;
-    private final UserRepository userRepository;
 
     // 팔로우
     @PostMapping
