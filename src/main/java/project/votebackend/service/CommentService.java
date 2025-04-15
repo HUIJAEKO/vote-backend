@@ -1,10 +1,7 @@
 package project.votebackend.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.votebackend.domain.Comment;
@@ -18,6 +15,9 @@ import project.votebackend.repository.CommentRepository;
 import project.votebackend.repository.UserRepository;
 import project.votebackend.repository.VoteRepository;
 import project.votebackend.type.ErrorCode;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,9 +56,22 @@ public class CommentService {
                 .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt")); // 오래된 순 정렬
-        Page<Comment> comments = commentRepository.findByVote_VoteId(voteId, pageable);
 
-        return comments.map(comment -> CommentResponse.fromEntity(comment, user.getUserId()));
+        // 부모 댓글만 페이징
+        Page<Comment> parentComments = commentRepository.findByVote_VoteIdAndParentIsNull(voteId, pageable);
+
+        // 각 부모 댓글에 대댓글 붙이기
+        List<CommentResponse> commentResponses = parentComments.getContent().stream()
+                .map(parent -> {
+                    // 대댓글 전체 조회
+                    List<Comment> replies = commentRepository.findByParent_CommentIdOrderByCreatedAtAsc(parent.getCommentId());
+
+                    return CommentResponse.fromEntityWithReplies(parent, replies, user.getUserId());
+                })
+                .collect(Collectors.toList());
+
+        // Page 객체로 감싸기
+        return new PageImpl<>(commentResponses, pageable, parentComments.getTotalElements());
     }
 
     //댓글 수정

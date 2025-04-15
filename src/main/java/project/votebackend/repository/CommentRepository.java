@@ -6,7 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import project.votebackend.domain.Comment;
 
+import java.util.List;
+
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    Page<Comment> findByVote_VoteId(Long voteId, Pageable pageable);
+    //부모 댓글
+    Page<Comment> findByVote_VoteIdAndParentIsNull(Long voteId, Pageable pageable);
+
+    //자식 댓글
+    List<Comment> findByParent_CommentIdOrderByCreatedAtAsc(Long parentId);
+
 }
