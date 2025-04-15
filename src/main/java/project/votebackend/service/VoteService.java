@@ -1,7 +1,9 @@
 package project.votebackend.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.IndexResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VoteService {
@@ -80,14 +83,14 @@ public class VoteService {
 
         //Elasticsearch에 저장
         try {
-            VoteDocument voteDocument = VoteDocument.fromEntity(savedVote);
+            VoteDocument doc = VoteDocument.fromEntity(savedVote);
             elasticsearchClient.index(i -> i
                     .index("votes")
-                    .id(String.valueOf(voteDocument.getId()))
-                    .document(voteDocument)
+                    .id(String.valueOf(doc.getId()))
+                    .document(doc)
             );
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Elasticsearch 저장 실패", e);
         }
 
         return savedVote;
@@ -126,6 +129,18 @@ public class VoteService {
             voteImageRepository.saveAll(newImages);
         }
 
+        //Elasticsearch에 저장
+        try {
+            VoteDocument doc = VoteDocument.fromEntity(newVote);
+            elasticsearchClient.index(i -> i
+                    .index("votes")
+                    .id(String.valueOf(doc.getId()))
+                    .document(doc)
+            );
+        } catch (IOException e) {
+            log.error("Elasticsearch 저장 실패", e);
+        }
+
         return newVote.getVoteId();
     }
 
@@ -140,6 +155,17 @@ public class VoteService {
         }
 
         voteRepository.delete(vote);
+
+        // Elasticsearch에서도 삭제
+        try {
+            elasticsearchClient.delete(d -> d
+                    .index("votes")
+                    .id(String.valueOf(voteId))
+            );
+        } catch (IOException e) {
+            log.error("Elasticsearch 삭제 실패", e);
+
+        }
     }
 
     // 메인페이지 투표 불러오기 (자신이 작성한, 자신이 선택한 카테고리, 자신이 팔로우한 사람의 글)
