@@ -1,6 +1,8 @@
 package project.votebackend.service;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +12,7 @@ import project.votebackend.domain.UserInterest;
 import project.votebackend.dto.LoginRequest;
 import project.votebackend.dto.LoginResponse;
 import project.votebackend.dto.UserSignupDto;
+import project.votebackend.elasticSearch.UserDocument;
 import project.votebackend.exception.AuthException;
 import project.votebackend.exception.CategoryException;
 import project.votebackend.repository.CategoryRepository;
@@ -18,6 +21,9 @@ import project.votebackend.repository.UserRepository;
 import project.votebackend.type.ErrorCode;
 import project.votebackend.util.JwtUtil;
 
+import java.io.IOException;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -27,6 +33,8 @@ public class AuthService {
     private final CategoryRepository categoryRepository;
     private final UserInterestRepository userInterestRepository;
     private final JwtUtil jwtUtil;
+    private final ElasticsearchClient elasticsearchClient;
+
 
     // 회원가입 (아이디 및 전화번호는 중복 존재 불가)
     @Transactional
@@ -66,6 +74,18 @@ public class AuthService {
                         .build();
                 userInterestRepository.save(interest);
             }
+        }
+
+        //Elasticsearch에 저장
+        try {
+            UserDocument doc = UserDocument.fromEntity(savedUser);
+            elasticsearchClient.index(i -> i
+                    .index("users")
+                    .id(String.valueOf(doc.getId()))
+                    .document(doc)
+            );
+        } catch (IOException e) {
+            log.error("Elasticsearch 저장 실패", e);
         }
 
         return savedUser;

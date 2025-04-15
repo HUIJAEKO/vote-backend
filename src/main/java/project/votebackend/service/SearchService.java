@@ -23,6 +23,7 @@ public class SearchService {
     public List<VoteDocument> searchVotes(String keyword) throws IOException {
         SearchResponse<VoteDocument> response = elasticsearchClient.search(s -> s
                         .index("votes")
+                        .size(20)
                         .query(q -> q
                                 .bool(b -> b
                                         .should(QueryBuilders.match(m -> m
@@ -48,6 +49,7 @@ public class SearchService {
     public List<UserDocument> searchUsers(String keyword) throws IOException {
         SearchResponse<UserDocument> response = elasticsearchClient.search(s -> s
                         .index("users")
+                        .size(50)
                         .query(q -> q
                                 .bool(b -> b
                                         .should(QueryBuilders.match(m -> m
