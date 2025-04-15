@@ -46,7 +46,11 @@ public class LoadVoteDto {
 
     //Entity -> Dto 변환 후 반환
     public static LoadVoteDto fromEntity(Vote vote, Long currentUserId, VoteSelectRepository voteSelectRepository) {
-        int commentCount = vote.getComments() != null ? vote.getComments().size() : 0;
+        int commentCount = vote.getComments() != null
+                ? (int) vote.getComments().stream()
+                .filter(c -> c.getParent() == null) // 부모 댓글만 필터링
+                .count()
+                : 0;
         int likeCount = (int) vote.getReactions().stream()
                 .filter(r -> r.getReaction() == ReactionType.LIKE)
                 .distinct()
