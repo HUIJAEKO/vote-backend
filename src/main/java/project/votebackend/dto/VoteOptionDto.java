@@ -13,6 +13,7 @@ import project.votebackend.domain.VoteOption;
 public class VoteOptionDto {
     private Long id;
     private String content;
+    private String optionImage;
     private int voteCount;
 
     public static VoteOptionDto fromEntity(VoteOption option, int voteCount) {
@@ -20,6 +21,7 @@ public class VoteOptionDto {
                 .id(option.getOptionId())
                 .content(option.getOption())
                 .voteCount(voteCount)
+                .optionImage(option.getOptionImage())
                 .build();
     }
 }
