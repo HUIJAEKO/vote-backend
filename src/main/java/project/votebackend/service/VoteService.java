@@ -62,7 +62,8 @@ public class VoteService {
         Set<VoteOption> options = request.getOptions().stream().map(opt -> {
             VoteOption o = new VoteOption();
             o.setVote(vote);
-            o.setOption(opt);
+            o.setOption(opt.getContent());
+            o.setOptionImage(opt.getOptionImage());
             return o;
         }).collect(Collectors.toSet());
 
@@ -117,7 +118,13 @@ public class VoteService {
 
         // 옵션 복사
         List<VoteOption> newOptions = original.getOptions().stream()
-                .map(opt -> new VoteOption(opt.getOption(), newVote))
+                .map(opt -> {
+                    VoteOption newOpt = new VoteOption();
+                    newOpt.setVote(newVote);
+                    newOpt.setOption(opt.getOption());
+                    newOpt.setOptionImage(opt.getOptionImage());
+                    return newOpt;
+                })
                 .collect(Collectors.toList());
         voteOptionRepository.saveAll(newOptions);
 
