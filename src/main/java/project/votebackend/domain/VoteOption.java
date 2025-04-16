@@ -22,6 +22,7 @@ public class VoteOption {
     private Vote vote;
 
     private String option;
+    private String optionImage;
 
     public VoteOption(String option, Vote vote) {
         this.option = option;
