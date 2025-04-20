@@ -83,7 +83,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
             "WHERE v.voteId = :voteId")
     Optional<Vote> findByIdWithUserAndOptions(@Param("voteId") Long voteId);
 
-    //좋아요 상위 10개의 글
+    //좋아요 상위 글
     @Query("""
         SELECT v
         FROM Vote v
@@ -92,7 +92,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
         GROUP BY v
         ORDER BY COUNT(r) DESC
     """)
-    List<Vote> findTop10ByReactionTypeOrderByLikeCountDesc(
+    List<Vote> findByReactionTypeOrderByLikeCountDesc(
             @Param("reactionType") ReactionType reactionType,
             Pageable pageable
     );
