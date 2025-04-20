@@ -74,12 +74,13 @@ public class VoteController {
         return ResponseEntity.ok(voteDto);
     }
 
-    //좋아요 수 상의 10개의 게시물
+    //좋아요 수 상위 게시물
     @GetMapping("/top-liked")
     public ResponseEntity<List<LoadVoteDto>> getTopLikedVotes(
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "30") int size) {
 
-        List<LoadVoteDto> result = voteService.getTop10LikedVotes(userDetails.getUsername());
+        List<LoadVoteDto> result = voteService.getTopLikedVotes(userDetails.getUsername(), size);
         return ResponseEntity.ok(result);
     }
 
@@ -88,7 +89,7 @@ public class VoteController {
     public ResponseEntity<Page<LoadVoteDto>> getVotesByCategory(
             @PathVariable Long categoryId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "30") int size,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         Page<LoadVoteDto> result = voteService.getVotesByCategorySortedByLike(categoryId, page, size, userDetails.getUsername());

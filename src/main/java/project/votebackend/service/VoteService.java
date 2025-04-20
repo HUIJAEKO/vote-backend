@@ -199,13 +199,13 @@ public class VoteService {
         return LoadVoteDto.fromEntity(vote, userId, voteSelectRepository);
     }
 
-    //상위 10개의 게시물
-    public List<LoadVoteDto> getTop10LikedVotes(String username) {
+    //좋아요 상위 게시물
+    public List<LoadVoteDto> getTopLikedVotes(String username, int size) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
 
-        Pageable pageable = PageRequest.of(0, 10); // 상위 10개
-        List<Vote> votes = voteRepository.findTop10ByReactionTypeOrderByLikeCountDesc(
+        Pageable pageable = PageRequest.of(0, size);
+        List<Vote> votes = voteRepository.findByReactionTypeOrderByLikeCountDesc(
                 ReactionType.LIKE,
                 pageable
         );
