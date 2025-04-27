@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import project.votebackend.dto.LoadVoteDto;
 import project.votebackend.security.CustumUserDetails;
 import project.votebackend.service.StorageService;
+import project.votebackend.util.PageResponseUtil;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,28 +26,28 @@ public class StorageController {
 
     //투표한 게시물 불러오기
     @GetMapping("/voted")
-    public ResponseEntity<Page<LoadVoteDto>> getVotedPosts(
+    public ResponseEntity<Map<String, Object>> getVotedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return ResponseEntity.ok(storageService.getVotedPosts(userDetails.getId(), pageable));
+        return ResponseEntity.ok(PageResponseUtil.toResponse(storageService.getVotedPosts(userDetails.getId(), pageable)));
     }
 
     //좋아요한 게시물 불러오기
     @GetMapping("/liked")
-    public ResponseEntity<Page<LoadVoteDto>> getLikedPosts(
+    public ResponseEntity<Map<String, Object>> getLikedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return ResponseEntity.ok(storageService.getLikedPosts(userDetails.getId(), pageable));
+        return ResponseEntity.ok(PageResponseUtil.toResponse(storageService.getLikedPosts(userDetails.getId(), pageable)));
     }
 
     //북마크한 게시물 불러오기
     @GetMapping("/bookmarked")
-    public ResponseEntity<Page<LoadVoteDto>> getBookmarkedPosts(
+    public ResponseEntity<Map<String, Object>> getBookmarkedPosts(
             @AuthenticationPrincipal CustumUserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return ResponseEntity.ok(storageService.getBookmarkedPosts(userDetails.getId(), pageable));
+        return ResponseEntity.ok(PageResponseUtil.toResponse(storageService.getBookmarkedPosts(userDetails.getId(), pageable)));
     }
 }

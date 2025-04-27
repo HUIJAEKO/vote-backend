@@ -21,7 +21,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     //작성한 글 + 내가 선택한 관심사 + 팔로우한 사람의 글
     @EntityGraph(attributePaths = {
-            "reactions", "category", "user", "images", "options"
+            "category", "user"
     })
     @Query("""
         SELECT v FROM Vote v
@@ -37,7 +37,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     //내가 투표한 글
     @EntityGraph(attributePaths = {
-            "reactions", "category", "user", "images", "options"
+            "category", "user"
     })
     @Query("""
         SELECT DISTINCT v FROM Vote v
@@ -50,7 +50,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     //내가 좋아요한 글
     @EntityGraph(attributePaths = {
-            "reactions", "category", "user", "images", "options"
+            "category", "user"
     })
     @Query("""
         SELECT DISTINCT v FROM Vote v
@@ -63,7 +63,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     //내가 북마크한 글
     @EntityGraph(attributePaths = {
-            "reactions", "category", "user", "images", "options"
+            "category", "user"
     })
     @Query("""
         SELECT DISTINCT v FROM Vote v

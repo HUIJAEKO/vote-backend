@@ -13,6 +13,7 @@ import project.votebackend.domain.Vote;
 import project.votebackend.dto.*;
 import project.votebackend.security.CustumUserDetails;
 import project.votebackend.service.VoteService;
+import project.votebackend.util.PageResponseUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -54,14 +55,14 @@ public class VoteController {
 
     //메인페이지 투표 불러오기 (자신이 작성한, 자신이 선택한 카테고리, 자신이 팔로우한 사람의 글)
     @GetMapping("/load-main-page-votes")
-    public ResponseEntity<Page<LoadVoteDto>> loadMainPageVotes(
+    public ResponseEntity<Map<String, Object>> loadMainPageVotes(
             @AuthenticationPrincipal CustumUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<LoadVoteDto> vote = voteService.getMainPageVotes(userDetails.getId(), pageable);
-        return ResponseEntity.ok(vote);
+        Page<LoadVoteDto> votePage = voteService.getMainPageVotes(userDetails.getId(), pageable);
+        return ResponseEntity.ok(PageResponseUtil.toResponse(votePage));
     }
 
     //단일 투표 불러오기
@@ -86,13 +87,13 @@ public class VoteController {
 
     //특정 카테고리의 게시물 불러오기
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<Page<LoadVoteDto>> getVotesByCategory(
+    public ResponseEntity<Map<String, Object>> getVotesByCategory(
             @PathVariable Long categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "30") int size,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Page<LoadVoteDto> result = voteService.getVotesByCategorySortedByLike(categoryId, page, size, userDetails.getUsername());
-        return ResponseEntity.ok(result);
+        Page<LoadVoteDto> votePage = voteService.getVotesByCategorySortedByLike(categoryId, page, size, userDetails.getUsername());
+        return ResponseEntity.ok(PageResponseUtil.toResponse(votePage));
     }
 }
