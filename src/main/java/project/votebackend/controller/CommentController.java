@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import project.votebackend.dto.CommentRequest;
 import project.votebackend.dto.CommentResponse;
 import project.votebackend.service.CommentService;
+import project.votebackend.util.PageResponseUtil;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,14 +40,14 @@ public class CommentController {
 
     // 댓글 조회
     @GetMapping("/{voteId}")
-    public ResponseEntity<Page<CommentResponse>> getComments(
+    public ResponseEntity<Map<String, Object>> getComments(
             @PathVariable Long voteId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         Page<CommentResponse> comments = commentService.getComments(voteId, userDetails.getUsername(), page, size);
-        return ResponseEntity.ok(comments);
+        return ResponseEntity.ok(PageResponseUtil.toResponse(comments));
     }
 
     // 댓글 수정
