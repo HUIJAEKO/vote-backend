@@ -9,36 +9,14 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
 public class FileStorageService {
-
-//    private final Path uploadDir = Paths.get("images");
-//
-//    //파일 업로드(현재 /images 폴더)
-//    public String storeFile(MultipartFile file) {
-//        try {
-//            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-//            Path targetPath = uploadDir.resolve(fileName);
-//
-//            // 파일 저장
-//            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-//
-//            return "/images/" + fileName;
-//
-//        } catch (IOException e) {
-//            throw new RuntimeException("이미지 저장에 실패했습니다.", e);
-//        }
-//    }
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
@@ -63,6 +41,7 @@ public class FileStorageService {
                 .build();
     }
 
+    //이미지 저장
     public String storeFile(MultipartFile file) {
         try {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -80,6 +59,22 @@ public class FileStorageService {
 
         } catch (IOException e) {
             throw new RuntimeException("S3 이미지 업로드 실패", e);
+        }
+    }
+
+    //이미지 삭제
+    public void deleteFile(String fileUrl) {
+        try {
+            String key = fileUrl.substring(fileUrl.indexOf("images/"));
+
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+
+            s3Client.deleteObject(deleteRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("S3 이미지 삭제 실패", e);
         }
     }
 }
