@@ -17,6 +17,11 @@ public class FileUploadController {
     //이미지 업로드
     @PostMapping("/image/upload")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
+        System.out.println("Received file: " + file.getOriginalFilename());
+        System.out.println("File size: " + file.getSize());
+        System.out.println("Content type: " + file.getContentType());
+
+
         String imageUrl = fileStorageService.storeFile(file);
         return ResponseEntity.ok(imageUrl);
     }
