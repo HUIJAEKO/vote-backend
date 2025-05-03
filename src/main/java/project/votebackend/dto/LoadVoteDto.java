@@ -28,6 +28,7 @@ public class LoadVoteDto {
     private String categoryName;
     private Long userId;
     private String username;
+    private String name;
     private LocalDateTime createdAt;
     private List<VoteImageDto> images;
     private List<VoteOptionDto> voteOptions;
@@ -93,6 +94,7 @@ public class LoadVoteDto {
                 .categoryName(vote.getCategory().getName())
                 .userId(vote.getUser().getUserId())
                 .username(vote.getUser().getUsername())
+                .name(vote.getUser().getName())
                 .createdAt(vote.getCreatedAt())
                 .finishTime(vote.getFinishTime())
                 .images(images)

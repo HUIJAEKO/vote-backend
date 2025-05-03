@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 public class UserPageDto {
 
     private String username;
+    private String name;
     private String profileImage;
     private String introduction;
     private Long point;

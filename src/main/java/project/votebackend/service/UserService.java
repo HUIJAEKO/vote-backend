@@ -42,6 +42,7 @@ public class UserService {
 
         return UserPageDto.builder()
                 .username(user.getUsername())
+                .name(user.getName())
                 .profileImage(user.getProfileImage())
                 .introduction(user.getIntroduction())
                 .point(user.getPoint())
@@ -71,6 +72,7 @@ public class UserService {
 
         return UserPageDto.builder()
                 .username(user.getUsername())
+                .name(user.getName())
                 .profileImage(user.getProfileImage())
                 .introduction(user.getIntroduction())
                 .point(user.getPoint())
