@@ -18,7 +18,7 @@ public class UserDocument {
     public static UserDocument fromEntity(User user) {
         return new UserDocument(
                 user.getUserId(),
-                user.getUsername(),
+                user.getName(),
                 user.getProfileImage()
         );
     }
