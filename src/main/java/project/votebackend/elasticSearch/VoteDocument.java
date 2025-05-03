@@ -20,7 +20,7 @@ public class VoteDocument {
         return new VoteDocument(
                 vote.getVoteId(),
                 vote.getTitle(),
-                vote.getUser().getUsername(),
+                vote.getUser().getName(),
                 vote.getCategory().getName()
         );
     }
