@@ -18,6 +18,9 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
+    @Value("${cloud.aws.cloudfront.domain}")
+    private String cloudFrontDomain;
+
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
@@ -55,7 +58,7 @@ public class FileStorageService {
 
             s3Client.putObject(putRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + key;
+            return "https://" + cloudFrontDomain + "/" + key;
 
         } catch (IOException e) {
             throw new RuntimeException("S3 이미지 업로드 실패", e);
