@@ -33,7 +33,18 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
         ORDER BY v.createdAt DESC
     """)
     Page<Vote> findMainPageVotes(@Param("userId") Long userId, @Param("categoryIds") List<Long> categoryIds, Pageable pageable);
-
+// 마감된글, 이미 투표한글은 제외
+//    SELECT v FROM Vote v
+//    WHERE (v.user.userId = :userId
+//                    OR v.category.categoryId IN :categoryIds
+//                    OR v.user.userId IN (
+//                    SELECT f.followingId FROM Follow f WHERE f.followerId = :userId
+//            ))
+//    AND v.voteId NOT IN (
+//            SELECT vs.vote.voteId FROM VoteSelection vs WHERE vs.user.userId = :userId
+//    )
+//    AND v.finishTime > CURRENT_TIMESTAMP
+//    ORDER BY v.createdAt DESC
 
     //내가 투표한 글
     @EntityGraph(attributePaths = {
