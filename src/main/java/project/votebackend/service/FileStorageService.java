@@ -1,6 +1,7 @@
 package project.votebackend.service;
 
 import jakarta.annotation.PostConstruct;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +13,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -50,13 +52,23 @@ public class FileStorageService {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             String key = "images/" + fileName;
 
+            // 이미지 리사이즈: 최대 너비 1080px, JPEG 압축
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Thumbnails.of(file.getInputStream())
+                    .size(1080, 1080) // 비율 유지하면서 리사이즈
+                    .outputFormat("jpg")
+                    .outputQuality(0.5) // 50% 품질로 압축
+                    .toOutputStream(os);
+
+            byte[] resizedImage = os.toByteArray();
+
             PutObjectRequest putRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
-                    .contentType(file.getContentType())
+                    .contentType("image/jpeg")
                     .build();
 
-            s3Client.putObject(putRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            s3Client.putObject(putRequest, RequestBody.fromBytes(resizedImage));
 
             return "https://" + cloudFrontDomain + "/" + key;
 
