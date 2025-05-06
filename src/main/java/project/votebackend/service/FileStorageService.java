@@ -77,7 +77,7 @@ public class FileStorageService {
         }
     }
 
-    //이미지 삭제
+    //이미지 삭제(프로필, 글 이미지 수정 및 삭제 시)
     public void deleteFile(String fileUrl) {
         try {
             String key = fileUrl.substring(fileUrl.indexOf("images/"));
