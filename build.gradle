@@ -36,7 +36,6 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     implementation 'co.elastic.clients:elasticsearch-java:8.15.5'
 
     annotationProcessor 'org.projectlombok:lombok'
