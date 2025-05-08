@@ -28,6 +28,7 @@ public class VoteSelectService{
     private final VoteOptionRepository voteOptionRepository;
     private final VoteSelectRepository voteSelectRepository;
 
+    //투표 참여
     @Transactional
     public VoteSelectResponse saveVoteSelection(Long userId, Long voteId, Long optionId) {
         User user = userRepository.findById(userId)
@@ -58,6 +59,25 @@ public class VoteSelectService{
                 .optionContent(option.getOption())
                 .userId(userId)
                 .build();
+    }
+
+    //투표 취소
+    @Transactional
+    public void cancelVoteSelection(Long userId, Long voteId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new VoteException(ErrorCode.VOTE_NOT_FOUND));
+
+        // 마감된 투표는 취소 불가
+        if (LocalDateTime.now().isAfter(vote.getFinishTime())) {
+            throw new VoteException(ErrorCode.VOTE_ALREADY_FINISHED);
+        }
+
+        VoteSelection selection = voteSelectRepository.findByUserAndVote(user, vote)
+                .orElseThrow(() -> new VoteException(ErrorCode.VOTE_SELECTION_NOT_FOUND));
+
+        voteSelectRepository.delete(selection);
     }
 }
 
