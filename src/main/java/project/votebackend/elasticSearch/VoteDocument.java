@@ -1,10 +1,8 @@
 package project.votebackend.elasticSearch;
 
 import lombok.*;
-import org.springframework.data.elasticsearch.annotations.Document;
 import project.votebackend.domain.Vote;
 
-@Document(indexName = "votes")
 @Getter
 @Setter
 @NoArgsConstructor
