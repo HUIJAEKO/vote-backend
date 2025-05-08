@@ -29,4 +29,15 @@ public class VoteSelectController {
         VoteSelectResponse response = voteSelectService.saveVoteSelection(userId, request.getVoteId(), request.getOptionId());
         return ResponseEntity.ok(response);
     }
+
+    //투표 취소
+    @PostMapping("/cancel")
+    public ResponseEntity<?> cancelVote(
+            @AuthenticationPrincipal CustumUserDetails userDetails,
+            @RequestBody VoteSelectRequest request
+    ) {
+        Long userId = userDetails.getId();
+        voteSelectService.cancelVoteSelection(userId, request.getVoteId());
+        return ResponseEntity.ok("투표가 취소되었습니다.");
+    }
 }
