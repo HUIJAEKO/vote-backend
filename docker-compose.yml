@@ -11,6 +11,7 @@ services:
     depends_on:
       - postgres
       - elasticsearch
+    #환경변수
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
