@@ -51,3 +51,9 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.named('processResources') {
+    from('src/main/resources') {
+        include 'application.yml'
+    }
+}
