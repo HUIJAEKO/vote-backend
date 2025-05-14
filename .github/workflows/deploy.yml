@@ -29,5 +29,4 @@ jobs:
             ./gradlew clean build
 
             # 5. 애플리케이션 재실행
-            setsid java -jar build/libs/vote-backend-0.0.1-SNAPSHOT.jar > nohup.out 2>&1 < /dev/null &
-            sleep 5
+            java -jar build/libs/vote-backend-0.0.1-SNAPSHOT.jar
