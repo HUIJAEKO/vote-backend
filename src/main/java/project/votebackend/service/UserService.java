@@ -16,6 +16,10 @@ import project.votebackend.repository.UserRepository;
 import project.votebackend.repository.VoteRepository;
 import project.votebackend.repository.VoteSelectRepository;
 import project.votebackend.type.ErrorCode;
+import project.votebackend.util.VoteStatisticsUtil;
+
+import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -23,23 +27,33 @@ import project.votebackend.type.ErrorCode;
 public class UserService {
     private final UserRepository userRepository;
     private final VoteRepository voteRepository;
-    private final VoteSelectRepository voteSelectRepository;
     private final FollowRepository followRepository;
+    private final VoteStatisticsUtil voteStatisticsUtil;
 
     //마이페이지 조회
     public UserPageDto getMyPage(Long userId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
 
-        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
 
         Page<Vote> votes = voteRepository.findByUser_UserId(userId, sortedPageable);
-        Page<LoadVoteDto> voteDto = votes.map(v -> LoadVoteDto.fromEntity(v, userId, voteSelectRepository));
+
+        List<Long> voteIds = votes.getContent().stream()
+                .map(Vote::getVoteId)
+                .toList();
+
+        Map<String, Object> stats = voteStatisticsUtil.collectVoteStatistics(userId, voteIds);
+        Page<LoadVoteDto> voteDto = voteStatisticsUtil.getLoadVoteDtos(userId, votes, stats, sortedPageable);
 
         Long postCount = voteRepository.countByUser_UserId(userId);
         Long followerCount = followRepository.countByFollowingId(userId);
         Long followingCount = followRepository.countByFollowerId(userId);
 
+        // 6. DTO 조립
         return UserPageDto.builder()
                 .username(user.getUsername())
                 .name(user.getName())
@@ -64,7 +78,12 @@ public class UserService {
         );
 
         Page<Vote> votes = voteRepository.findByUser_UserId(userId, sortedPageable);
-        Page<LoadVoteDto> voteDto = votes.map(v -> LoadVoteDto.fromEntity(v, userId, voteSelectRepository));
+        List<Long> voteIds = votes.getContent().stream()
+                .map(Vote::getVoteId)
+                .toList();
+
+        Map<String, Object> stats = voteStatisticsUtil.collectVoteStatistics(userId, voteIds);
+        Page<LoadVoteDto> voteDto = voteStatisticsUtil.getLoadVoteDtos(userId, votes, stats, sortedPageable);
 
         Long postCount = voteRepository.countByUser_UserId(userId);
         Long followerCount = followRepository.countByFollowingId(userId);
