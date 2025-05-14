@@ -50,5 +50,5 @@ jobs:
             PID=$(pgrep -f 'vote-backend-0.0.1-SNAPSHOT.jar') && sudo kill $PID || echo "No previous process"
 
             # 새 jar 실행
-            sudo setsid java -jar /home/ubuntu/vote-backend/build/libs/vote-backend-0.0.1-SNAPSHOT.jar > /home/ubuntu/vote-backend/nohup.out 2>&1 < /dev/null &
-            sleep 5
+            nohup java -jar /home/ubuntu/vote-backend/build/libs/vote-backend-0.0.1-SNAPSHOT.jar > /home/ubuntu/vote-backend/nohup.out 2>&1 &
+
