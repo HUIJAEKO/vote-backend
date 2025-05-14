@@ -46,9 +46,26 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # 기존 프로세스 종료
-            PID=$(pgrep -f 'vote-backend-0.0.1-SNAPSHOT.jar') && sudo kill $PID || echo "No previous process"
+            echo "======== 🚀 EC2 배포 시작 ========"
+            date
 
-            # 새 jar 실행
-            nohup java -jar /home/ubuntu/vote-backend/build/libs/vote-backend-0.0.1-SNAPSHOT.jar > /home/ubuntu/vote-backend/nohup.out 2>&1 &
+            echo "🔍 현재 실행 중인 Spring Boot 프로세스 확인:"
+            pgrep -af 'vote-backend-0.0.1-SNAPSHOT.jar' || echo "No process found"
 
+            echo "🛑 기존 프로세스 종료 시도:"
+            PID=$(pgrep -f 'vote-backend-0.0.1-SNAPSHOT.jar') && sudo kill $PID && echo "✅ 종료 완료 (PID=$PID)" || echo "⚠️ 종료할 프로세스 없음"
+
+            echo "🧹 이전 로그 삭제"
+            rm -f /home/ubuntu/vote-backend/nohup.out
+
+            echo "🟢 새로운 애플리케이션 실행"
+            nohup java -jar /home/ubuntu/vote-backend/build/libs/vote-backend-0.0.1-SNAPSHOT.jar > /home/ubuntu/vote-backend/nohup.out 2>&1 & disown
+
+            sleep 5
+
+            echo "📄 초기 로그 출력 (/home/ubuntu/vote-backend/nohup.out):"
+            head -n 20 /home/ubuntu/vote-backend/nohup.out || echo "로그 파일이 아직 생성되지 않았습니다."
+
+            echo "✅ 배포 완료"
+            date
+            echo "=================================="
