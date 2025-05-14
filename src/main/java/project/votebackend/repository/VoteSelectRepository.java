@@ -25,32 +25,68 @@ public interface VoteSelectRepository extends JpaRepository<VoteSelection, Long>
     int countByOptionId(@Param("optionId") Long optionId);
 
     // 성별 기준 분석
+//    @Query("""
+//        SELECT u.gender, vo.option
+//        FROM VoteSelection vs
+//        JOIN vs.user u
+//        JOIN vs.option vo
+//        WHERE vs.vote.voteId = :voteId
+//    """)
+//    List<Object[]> findGenderStatistics(@Param("voteId") Long voteId);
+
+    // 성별 기준 분석 최적화
     @Query("""
-        SELECT u.gender, vo.option
+        SELECT u.gender, vo.option, COUNT(vs)
         FROM VoteSelection vs
         JOIN vs.user u
         JOIN vs.option vo
         WHERE vs.vote.voteId = :voteId
+        GROUP BY u.gender, vo.option
     """)
     List<Object[]> findGenderStatistics(@Param("voteId") Long voteId);
 
     // 연령 기준 분석
-    @Query("""
-        SELECT u.birthdate, vo.option
-        FROM VoteSelection vs
-        JOIN vs.user u
-        JOIN vs.option vo
-        WHERE vs.vote.voteId = :voteId
-    """)
+//    @Query("""
+//        SELECT u.birthdate, vo.option
+//        FROM VoteSelection vs
+//        JOIN vs.user u
+//        JOIN vs.option vo
+//        WHERE vs.vote.voteId = :voteId
+//    """)
+//    List<Object[]> findAgeStatistics(@Param("voteId") Long voteId);
+
+    // 연령 기준 분석 최적화
+    @Query(value = """
+        SELECT 
+            FLOOR(EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.birthdate)) / 10) * 10 AS age_group,
+            o.option AS option,
+            COUNT(*) AS count
+        FROM vote_selections vs
+        JOIN users u ON vs.user_id = u.user_id
+        JOIN vote_option o ON vs.option_id = o.option_id
+        WHERE vs.vote_id = :voteId
+        GROUP BY age_group, o.option
+    """, nativeQuery = true)
     List<Object[]> findAgeStatistics(@Param("voteId") Long voteId);
 
     // 지역 기준 분석
+//    @Query("""
+//        SELECT u.address, vo.option
+//        FROM VoteSelection vs
+//        JOIN vs.user u
+//        JOIN vs.option vo
+//        WHERE vs.vote.voteId = :voteId
+//    """)
+//    List<Object[]> findRegionStatistics(@Param("voteId") Long voteId);
+
+    // 지역 기준 분석 최적화
     @Query("""
-        SELECT u.address, vo.option
+        SELECT u.address, vo.option, COUNT(vs)
         FROM VoteSelection vs
         JOIN vs.user u
         JOIN vs.option vo
         WHERE vs.vote.voteId = :voteId
+        GROUP BY u.address, vo.option
     """)
     List<Object[]> findRegionStatistics(@Param("voteId") Long voteId);
 }
