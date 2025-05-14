@@ -19,6 +19,7 @@ import project.votebackend.exception.VoteException;
 import project.votebackend.repository.*;
 import project.votebackend.type.ErrorCode;
 import project.votebackend.type.ReactionType;
+import project.votebackend.util.VoteStatisticsUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -39,9 +40,8 @@ public class VoteService {
     private final VoteOptionRepository voteOptionRepository;
     private final ElasticsearchClient elasticsearchClient;
     private final VoteImageRepository voteImageRepository;
-    private final CommentRepository commentRepository;
-    private final ReactionRepository reactionRepository;
 
+    private final VoteStatisticsUtil voteStatisticsUtil;
 
     //투표 생성
     @Transactional
@@ -195,55 +195,28 @@ public class VoteService {
         long total = voteRepository.countMainPageVotes(userId, categoryIds);
 
         List<Long> voteIds = votes.stream().map(Vote::getVoteId).toList();
+        Map<String, Object> stats = voteStatisticsUtil.collectVoteStatistics(userId, voteIds);
 
-        Map<Long, Integer> optionVoteCountMap = voteSelectRepository.findOptionVoteCounts(voteIds).stream()
-                .collect(Collectors.toMap(
-                        row -> ((Number) row[0]).longValue(),
-                        row -> ((Number) row[1]).intValue()
-                ));
+        Page<Vote> votePage = new PageImpl<>(votes, pageable, total);
 
-        Map<Long, Integer> commentCountMap = commentRepository.countParentCommentsByVoteIds(voteIds).stream()
-                .collect(Collectors.toMap(
-                        row -> ((Number) row[0]).longValue(),
-                        row -> ((Number) row[1]).intValue()
-                ));
-
-        List<Object[]> reactionRows = reactionRepository.findReactionsByVoteIds(voteIds);
-        Map<Long, Integer> likeCountMap = new HashMap<>();
-        Map<Long, Boolean> isLikedMap = new HashMap<>();
-        Map<Long, Boolean> isBookmarkedMap = new HashMap<>();
-
-        for (Object[] row : reactionRows) {
-            Long voteId = (Long) row[0];
-            String reaction = row[1].toString();
-            Long reactedUserId = (Long) row[2];
-
-            if (reaction.equals("LIKE")) {
-                likeCountMap.put(voteId, likeCountMap.getOrDefault(voteId, 0) + 1);
-                if (reactedUserId.equals(userId)) {
-                    isLikedMap.put(voteId, true);
-                }
-            }
-
-            if (reaction.equals("BOOKMARK") && reactedUserId.equals(userId)) {
-                isBookmarkedMap.put(voteId, true);
-            }
-        }
-
-        List<LoadVoteDto> dtos = votes.stream()
-                .map(v -> LoadVoteDto.fromEntityWithAllMaps(v, userId, voteSelectRepository,
-                        optionVoteCountMap, commentCountMap,
-                        likeCountMap, isLikedMap, isBookmarkedMap))
-                .toList();
-
-        return new PageImpl<>(dtos, pageable, total);
+        return voteStatisticsUtil.getLoadVoteDtos(userId, votePage, stats, pageable);
     }
 
     //단일 투표 불러오기
     public LoadVoteDto getVoteById(Long voteId, Long userId) {
         Vote vote = voteRepository.findByIdWithUserAndOptions(voteId)
                 .orElseThrow(() -> new VoteException(ErrorCode.VOTE_NOT_FOUND));
-        return LoadVoteDto.fromEntity(vote, userId, voteSelectRepository);
+
+        Map<String, Object> stats = voteStatisticsUtil.collectVoteStatistics(userId, List.of(voteId));
+
+        return LoadVoteDto.fromEntityWithAllMaps(
+                vote, userId, voteSelectRepository,
+                (Map<Long, Integer>) stats.get("optionVoteCountMap"),
+                (Map<Long, Integer>) stats.get("commentCountMap"),
+                (Map<Long, Integer>) stats.get("likeCountMap"),
+                (Map<Long, Boolean>) stats.get("isLikedMap"),
+                (Map<Long, Boolean>) stats.get("isBookmarkedMap")
+        );
     }
 
     //좋아요 상위 게시물
