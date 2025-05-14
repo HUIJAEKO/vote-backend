@@ -13,6 +13,7 @@ import project.votebackend.type.ReactionType;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -104,6 +105,73 @@ public class LoadVoteDto {
                 .isLiked(isLiked)
                 .profileImage(vote.getUser().getProfileImage())
                 .isBookmarked(isBookmarked)
+                .totalVotes(totalVotes)
+                .selectedOptionId(selectedOptionId.orElse(null))
+                .build();
+    }
+
+    public static LoadVoteDto fromEntityWithAllMaps(
+            Vote vote,
+            Long currentUserId,
+            VoteSelectRepository voteSelectRepository,
+            Map<Long, Integer> optionVoteCountMap,
+            Map<Long, Integer> commentCountMap,
+            Map<Long, Integer> likeCountMap,
+            Map<Long, Boolean> isLikedMap,
+            Map<Long, Boolean> isBookmarkedMap
+    ) {
+        Long voteId = vote.getVoteId();
+
+        // 댓글 수
+        int commentCount = commentCountMap.getOrDefault(voteId, 0);
+
+        // 좋아요 수
+        int likeCount = likeCountMap.getOrDefault(voteId, 0);
+
+        // 내 반응
+        boolean isLiked = isLikedMap.getOrDefault(voteId, false);
+        boolean isBookmarked = isBookmarkedMap.getOrDefault(voteId, false);
+
+        // 이미지
+        List<VoteImageDto> images = vote.getImages().stream()
+                .map(VoteImageDto::fromEntity)
+                .toList();
+
+        // 옵션 및 옵션별 투표 수
+        List<VoteOptionDto> voteOptions = vote.getOptions().stream()
+                .sorted(Comparator.comparing(VoteOption::getOptionId))
+                .map(option -> {
+                    int voteCount = optionVoteCountMap.getOrDefault(option.getOptionId(), 0);
+                    return VoteOptionDto.fromEntity(option, voteCount);
+                })
+                .toList();
+
+        // 전체 투표 수
+        int totalVotes = voteOptions.stream()
+                .mapToInt(VoteOptionDto::getVoteCount)
+                .sum();
+
+        // 사용자가 선택한 옵션
+        Optional<Long> selectedOptionId = voteSelectRepository
+                .findOptionIdByVoteIdAndUserId(voteId, currentUserId);
+
+        return LoadVoteDto.builder()
+                .voteId(voteId)
+                .title(vote.getTitle())
+                .content(vote.getContent())
+                .categoryName(vote.getCategory().getName())
+                .userId(vote.getUser().getUserId())
+                .username(vote.getUser().getUsername())
+                .name(vote.getUser().getName())
+                .createdAt(vote.getCreatedAt())
+                .finishTime(vote.getFinishTime())
+                .images(images)
+                .voteOptions(voteOptions)
+                .commentCount(commentCount)
+                .likeCount(likeCount)
+                .isLiked(isLiked)
+                .isBookmarked(isBookmarked)
+                .profileImage(vote.getUser().getProfileImage())
                 .totalVotes(totalVotes)
                 .selectedOptionId(selectedOptionId.orElse(null))
                 .build();

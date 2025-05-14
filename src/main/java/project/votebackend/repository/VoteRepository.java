@@ -20,19 +20,32 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     Page<Vote> findByUser_UserId(Long userId, Pageable pageable);
 
     //작성한 글 + 내가 선택한 관심사 + 팔로우한 사람의 글
-    @EntityGraph(attributePaths = {
-            "category", "user"
-    })
-    @Query("""
-        SELECT v FROM Vote v
-        WHERE v.user.userId = :userId
-           OR v.category.categoryId IN :categoryIds
-           OR v.user.userId IN (
-                SELECT f.followingId FROM Follow f WHERE f.followerId = :userId
-           )
-        ORDER BY v.createdAt DESC
-    """)
-    Page<Vote> findMainPageVotes(@Param("userId") Long userId, @Param("categoryIds") List<Long> categoryIds, Pageable pageable);
+    @Query(value = """
+        (
+          SELECT v.* FROM vote v 
+          WHERE v.user_id = :userId
+        )
+        UNION
+        (
+          SELECT v.* FROM vote v 
+          WHERE v.category_id IN (:categoryIds)
+        )
+        UNION
+        (
+          SELECT v.* FROM vote v 
+          WHERE v.user_id IN (
+            SELECT f.following_id FROM follow f WHERE f.follower_id = :userId
+          )
+        )
+        ORDER BY created_at DESC
+        LIMIT :limit OFFSET :offset
+        """, nativeQuery = true)
+    List<Vote> findMainPageVotesUnion(
+            @Param("userId") Long userId,
+            @Param("categoryIds") List<Long> categoryIds,
+            @Param("limit") int limit,
+            @Param("offset") int offset
+    );
 // 마감된글, 이미 투표한글은 제외
 //    SELECT v FROM Vote v
 //    WHERE (v.user.userId = :userId
@@ -46,6 +59,20 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 //    AND v.finishTime > CURRENT_TIMESTAMP
 //    ORDER BY v.createdAt DESC
 
+    //메인페이지 글 개수 count
+    @Query(value = """
+        SELECT COUNT(DISTINCT v.vote_id)
+        FROM vote v
+        LEFT JOIN follow f ON f.following_id = v.user_id
+        WHERE v.user_id = :userId
+           OR v.category_id IN (:categoryIds)
+           OR f.follower_id = :userId
+        """, nativeQuery = true)
+    long countMainPageVotes(
+            @Param("userId") Long userId,
+            @Param("categoryIds") List<Long> categoryIds
+    );
+
     //내가 투표한 글
     @EntityGraph(attributePaths = {
             "category", "user"
@@ -57,7 +84,6 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
         ORDER BY v.createdAt DESC
     """)
     Page<Vote> findVotedByUserId(@Param("userId") Long userId, Pageable pageable);
-
 
     //내가 좋아요한 글
     @EntityGraph(attributePaths = {
