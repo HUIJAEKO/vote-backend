@@ -22,11 +22,12 @@ jobs:
             # 2. 최신 코드 pull
             git pull origin main
 
-            # 3. 기존 프로세스 종료
-            sudo pkill -f 'vote-backend-0.0.1-SNAPSHOT.jar' || true
+            # 3. 이전 프로세스 종료
+            PID=$(pgrep -f 'vote-backend-0.0.1-SNAPSHOT.jar') && sudo kill $PID || echo "No previous process"
 
             # 4. 빌드
             ./gradlew clean build
 
-            # 5. 애플리케이션 재실행
-            java -jar build/libs/vote-backend-0.0.1-SNAPSHOT.jar
+            # 5. 애플리케이션 백그라운드 실행 (절대경로 + 세션 분리)
+            sudo setsid java -jar /home/ubuntu/vote-backend/build/libs/vote-backend-0.0.1-SNAPSHOT.jar > /home/ubuntu/vote-backend/nohup.out 2>&1 < /dev/null &
+            sleep 5
