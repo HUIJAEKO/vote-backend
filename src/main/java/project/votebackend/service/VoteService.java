@@ -1,10 +1,10 @@
 package project.votebackend.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.core.IndexResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,9 @@ import project.votebackend.type.ReactionType;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,8 @@ public class VoteService {
     private final VoteOptionRepository voteOptionRepository;
     private final ElasticsearchClient elasticsearchClient;
     private final VoteImageRepository voteImageRepository;
+    private final CommentRepository commentRepository;
+    private final ReactionRepository reactionRepository;
 
 
     //투표 생성
@@ -180,16 +184,59 @@ public class VoteService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthException(ErrorCode.USERNAME_NOT_FOUND));
 
-        // 유저가 선택한 카테고리 ID 목록
         List<Long> categoryIds = user.getUserInterests().stream()
                 .map(interest -> interest.getCategory().getCategoryId())
                 .toList();
 
-        // 투표 조회
-        Page<Vote> votes = voteRepository.findMainPageVotes(userId, categoryIds, pageable);
+        int offset = pageable.getPageNumber() * pageable.getPageSize();
+        int limit = pageable.getPageSize();
 
-        // DTO로 변환 (득표수, 선택 옵션)
-        return votes.map(vote -> LoadVoteDto.fromEntity(vote, userId, voteSelectRepository));
+        List<Vote> votes = voteRepository.findMainPageVotesUnion(userId, categoryIds, limit, offset);
+        long total = voteRepository.countMainPageVotes(userId, categoryIds);
+
+        List<Long> voteIds = votes.stream().map(Vote::getVoteId).toList();
+
+        Map<Long, Integer> optionVoteCountMap = voteSelectRepository.findOptionVoteCounts(voteIds).stream()
+                .collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> ((Number) row[1]).intValue()
+                ));
+
+        Map<Long, Integer> commentCountMap = commentRepository.countParentCommentsByVoteIds(voteIds).stream()
+                .collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> ((Number) row[1]).intValue()
+                ));
+
+        List<Object[]> reactionRows = reactionRepository.findReactionsByVoteIds(voteIds);
+        Map<Long, Integer> likeCountMap = new HashMap<>();
+        Map<Long, Boolean> isLikedMap = new HashMap<>();
+        Map<Long, Boolean> isBookmarkedMap = new HashMap<>();
+
+        for (Object[] row : reactionRows) {
+            Long voteId = (Long) row[0];
+            String reaction = row[1].toString();
+            Long reactedUserId = (Long) row[2];
+
+            if (reaction.equals("LIKE")) {
+                likeCountMap.put(voteId, likeCountMap.getOrDefault(voteId, 0) + 1);
+                if (reactedUserId.equals(userId)) {
+                    isLikedMap.put(voteId, true);
+                }
+            }
+
+            if (reaction.equals("BOOKMARK") && reactedUserId.equals(userId)) {
+                isBookmarkedMap.put(voteId, true);
+            }
+        }
+
+        List<LoadVoteDto> dtos = votes.stream()
+                .map(v -> LoadVoteDto.fromEntityWithAllMaps(v, userId, voteSelectRepository,
+                        optionVoteCountMap, commentCountMap,
+                        likeCountMap, isLikedMap, isBookmarkedMap))
+                .toList();
+
+        return new PageImpl<>(dtos, pageable, total);
     }
 
     //단일 투표 불러오기
