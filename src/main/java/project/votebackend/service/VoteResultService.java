@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import project.votebackend.dto.VoteResultStatisticsDto;
 import project.votebackend.repository.VoteSelectRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.HashMap;
@@ -46,14 +47,17 @@ public class VoteResultService {
         Map<String, VoteResultStatisticsDto> result = new HashMap<>();
 
         for (Object[] row : data) {
-            LocalDate birth = (LocalDate) row[0];
+            BigDecimal ageGroupDecimal = (BigDecimal) row[0]; // ex: 10, 20, 30 → 연령대 직접 받아옴
+            int ageGroupInt = ageGroupDecimal.intValue();
             String option = (String) row[1];
-            String ageGroup = getAgeGroup(birth);
+            Long count = (Long) row[2];
+
+            String ageGroup = formatAgeGroup(ageGroupInt);
 
             result.computeIfAbsent(ageGroup, k -> new VoteResultStatisticsDto(new HashMap<>()))
                     .getStat()
-                    .merge(option, 1L, Long::sum);
-        }
+                    .merge(option, count, Long::sum);
+            }
         return result;
     }
 
@@ -70,28 +74,28 @@ public class VoteResultService {
         for (Object[] row : data) {
             String address = (String) row[0];
             String option = (String) row[1];
+            Long count = (Long) row[2];
+
             String region = extractRegion(address);
 
             result.computeIfAbsent(region, k -> new VoteResultStatisticsDto(new HashMap<>()))
                     .getStat()
-                    .merge(option, 1L, Long::sum);
+                    .merge(option, count, Long::sum);
         }
         return result;
     }
 
     /**
      * 생년월일 → 연령대 문자열로 변환
-     *
-     * @param birthDate LocalDate
      * @return 연령대 문자열
      */
-    private String getAgeGroup(LocalDate birthDate) {
-        int age = Period.between(birthDate, LocalDate.now()).getYears();
-        if (age < 10) return "10대 미만";
-        if (age < 20) return "10대";
-        if (age < 30) return "20대";
-        if (age < 40) return "30대";
-        if (age < 50) return "40대";
+    private String formatAgeGroup(Integer group) {
+        if (group == null) return "기타";
+        if (group < 10) return "10대 미만";
+        if (group < 20) return "10대";
+        if (group < 30) return "20대";
+        if (group < 40) return "30대";
+        if (group < 50) return "40대";
         return "50대 이상";
     }
 
@@ -119,10 +123,11 @@ public class VoteResultService {
         for (Object[] row : data) {
             String group = row[0].toString(); // ex: MALE, FEMALE
             String option = (String) row[1];
+            Long count = (Long) row[2];
 
             result.computeIfAbsent(group, k -> new VoteResultStatisticsDto(new HashMap<>()))
                     .getStat()
-                    .merge(option, 1L, Long::sum);
+                    .merge(option, count, Long::sum);
         }
         return result;
     }
